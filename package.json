@@ -11,7 +11,7 @@
     "prepare": "husky install",
     "lint:client": "cd client && npx lint-staged",
     "lint:server": "cd server && npx lint-staged",
-    "test:server": "cd server && yarn run test",
-    "test:client": "cd client && yarn run test"
+    "test:server": "cd server && yarn run test --run",
+    "test:client": "cd client && yarn run test --run"
   }
 }
