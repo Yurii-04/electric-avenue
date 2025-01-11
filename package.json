@@ -1,0 +1,15 @@
+{
+  "name": "electric-avenue",
+  "version": "1.0.0",
+  "repository": "https://github.com/Yurii-04/electric-avenue.git",
+  "author": "VaflyaArtek <yuriy.shpak.2017@gmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "husky": "^8.0.0"
+  },
+  "scripts": {
+    "prepare": "husky install",
+    "lint:client": "cd client && npx lint-staged",
+    "lint:server": "cd server && npx lint-staged"
+  }
+}
