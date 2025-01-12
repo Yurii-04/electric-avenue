@@ -22,6 +22,9 @@ const mockPrismaService = {
   categories: {
     findUnique: jest.fn(),
   },
+  attributes: {
+    findMany: jest.fn(),
+  },
 };
 
 const mockCloudinaryService = {
@@ -64,6 +67,7 @@ describe('ProductService', () => {
       const files = [{ filename: 'image1.jpg' }] as Express.Multer.File[];
 
       prisma.categories.findUnique.mockResolvedValue({ id: 'cat123' });
+      prisma.attributes.findMany.mockResolvedValue([{ id: 1, name: 'Color' }]); // Атрибути знайдені
       cloudinary.uploadImages.mockResolvedValue([{ url: 'http://image.url' }]);
       prisma.products.create.mockResolvedValue({ id: 'prod123' });
       prisma.products.update.mockResolvedValue({
@@ -75,6 +79,9 @@ describe('ProductService', () => {
 
       expect(prisma.categories.findUnique).toHaveBeenCalledWith({
         where: { id: dto.categoryId },
+      });
+      expect(prisma.attributes.findMany).toHaveBeenCalledWith({
+        where: { id: { in: [1] } },
       });
       expect(cloudinary.uploadImages).toHaveBeenCalledWith(files);
       expect(prisma.products.create).toHaveBeenCalledWith(
@@ -105,6 +112,25 @@ describe('ProductService', () => {
       );
     });
 
+    it('should throw NotFoundException if one or more attributes do not exist', async () => {
+      const dto = {
+        title: 'Test Product',
+        description: 'Test description',
+        categoryId: 1,
+        price: '100',
+        attributes: [{ attributeId: 1, value: 'black' }],
+      };
+      const userId = 'user123';
+      const files = [] as Express.Multer.File[];
+
+      prisma.categories.findUnique.mockResolvedValue({ id: 'cat123' });
+      prisma.attributes.findMany.mockResolvedValue([]); // Атрибути не знайдені
+
+      await expect(service.create(dto, userId, files)).rejects.toThrow(
+        NotFoundException,
+      );
+    });
+
     it('should throw BadRequestException if file upload fails', async () => {
       const dto = {
         title: 'Test Product',
@@ -117,6 +143,7 @@ describe('ProductService', () => {
       const files = [{ filename: 'image1.jpg' }] as Express.Multer.File[];
 
       prisma.categories.findUnique.mockResolvedValue({ id: 'cat123' });
+      prisma.attributes.findMany.mockResolvedValue([{ id: 1, name: 'Color' }]);
       cloudinary.uploadImages.mockRejectedValue(new Error('Invalid file type'));
 
       await expect(service.create(dto, userId, files)).rejects.toThrow(
