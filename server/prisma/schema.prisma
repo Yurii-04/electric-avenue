@@ -1,0 +1,80 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Users {
+  id             String   @id @default(cuid())
+  firstName      String?  @map("first_name")
+  lastName       String?  @map("last_name")
+  email          String   @unique
+  hashedPassword String   @map("hashed_password")
+  photo          String?
+  hashedRt       String?  @map("hashed_rt")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  products Products[]
+
+  @@map("users")
+}
+
+model Products {
+  id          String   @id @default(cuid())
+  sellerId    String   @map("seller_id")
+  title       String
+  description String
+  categoryId  Int      @map("category_id")
+  images      String[]
+  price       Decimal
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  attributeValues AttributeValues[]
+
+  seller   Users      @relation(fields: [sellerId], references: [id])
+  category Categories @relation(fields: [categoryId], references: [id])
+
+  @@map("products")
+}
+
+model Categories {
+  id       Int      @id @default(autoincrement())
+  name     String
+  parentId Int?     @map("parent_id")
+  icon     String?
+  isGroup  Boolean? @default(false) @map("is_group")
+
+  products Products[]
+
+  @@index([parentId])
+  @@map("categories")
+}
+
+// EAV
+model Attributes {
+  id          Int     @id @default(autoincrement())
+  name        String  @unique()
+  description String?
+
+  attributeValues AttributeValues[]
+
+  @@map("attributes")
+}
+
+model AttributeValues {
+  id          Int    @id @default(autoincrement())
+  productId   String @map("product_id")
+  attributeId Int    @map("attribute_id")
+  value       String
+
+  product   Products   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  attribute Attributes @relation(fields: [attributeId], references: [id])
+
+  @@index([productId, attributeId])
+  @@map("attribute_values")
+}
