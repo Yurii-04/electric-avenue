@@ -13,7 +13,7 @@ export class UserController {
   }
 
   @Get(':id')
-  async getByEmail(@Param('id') id: string) {
+  async getById(@Param('id') id: string) {
     return this.userService.findById(id);
   }
 }
