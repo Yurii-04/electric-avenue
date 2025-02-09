@@ -1,7 +1,7 @@
 import { createTheme } from '@mui/material';
-import { appTypography, button, checkbox, menuItem, svgIcon, textField } from './index.ts';
-import palette from './app.pallete.ts';
-import tooltip from './app.tooltip.ts';
+import { appTypography, button, checkbox, menuItem, svgIcon, textField } from './index';
+import palette from './app.pallete';
+import tooltip from './app.tooltip';
 
 export const theme = createTheme({
   typography: appTypography,

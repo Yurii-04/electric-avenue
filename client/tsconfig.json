@@ -1,7 +1,40 @@
 {
-  "files": [],
-  "references": [
-    { "path": "./tsconfig.app.json" },
-    { "path": "./tsconfig.node.json" }
+  "compilerOptions": {
+    "module": "Node16",
+    "target": "Esnext",
+    "useDefineForClassFields": true,
+    "lib": [
+      "DOM",
+      "DOM.Iterable",
+      "ESNext"
+    ],
+    "skipLibCheck": true,
+    "esModuleInterop": false,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "moduleResolution": "node16",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "baseUrl": "src",
+    "paths": {
+      "~/*": [
+        "*"
+      ]
+    },
+    "types": [
+      "vite-plugin-svgr/client"
+    ],
+    "allowImportingTsExtensions": true
+  },
+  "include": [
+    "src"
   ],
+  "references": [
+    {
+      "path": "./tsconfig.node.json"
+    }
+  ]
 }
