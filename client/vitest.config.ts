@@ -15,14 +15,13 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     watch: false,
-    setupFiles: './src/tests/setup-tests.js',
     globals: true,
     exclude: [...configDefaults.exclude, 'packages/template/*'],
     coverage: {
+      provider: 'v8',
       all: true,
       reporter: ['lcov', 'text'],
-      include: ['src/**/*.jsx', 'src/**/*.tsx'],
-      exclude: ['./src/tests/setup-tests.js'],
+      include: ['src/**/*.tsx'],
       reportsDirectory: './src/tests/coverage'
     },
     reporters: ['vitest-sonar-reporter', 'default'],
