@@ -1,10 +1,7 @@
 import * as React from 'react';
 import { useState } from 'react';
-import Container from '~/components/container/Container';
 import { styles } from './header.styles';
 import { theme } from '~/styles/app-theme';
-import AppBar from '@mui/material/AppBar';
-import Toolbar from '@mui/material/Toolbar';
 import {
   Box,
   Button,
@@ -13,15 +10,19 @@ import {
   Menu,
   MenuItem,
   TextField,
+  AppBar,
+  Toolbar,
   useMediaQuery,
 } from '@mui/material';
+import Container from '~/components/container/Container';
 import Logo from '~/components/logo/logo';
+import CustomIcon from '~/components/custom-icon/CustomIcon';
 import GridViewOutlinedIcon from '@mui/icons-material/GridViewOutlined';
 import SearchIcon from '@mui/icons-material/Search';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined';
 import MenuIcon from '@mui/icons-material/Menu';
-import CustomIcon from '~/components/custom-icon/CustomIcon';
+import ProfileIcon from '~/assets/img/common/profile.svg?react';
 
 function Header() {
   const auth = true;
@@ -74,7 +75,7 @@ function Header() {
               aria-haspopup="true"
               onClick={handleMenu}
             >
-              <CustomIcon fontSize='small' />
+              <CustomIcon icon={ProfileIcon} fontSize="small" />
             </IconButton>
             <Menu
               anchorEl={anchorEl}
@@ -110,7 +111,11 @@ function Header() {
                 input: {
                   endAdornment: (
                     <InputAdornment position="start">
-                      <SearchIcon cursor="pointer" />
+                      <Button
+                        onClick={() => console.log('12')}
+                      >
+                        <SearchIcon cursor="pointer" />
+                      </Button>
                     </InputAdornment>
                   ),
                 },

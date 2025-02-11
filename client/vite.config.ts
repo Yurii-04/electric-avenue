@@ -1,6 +1,6 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react-swc'
-import svgrPlugin from 'vite-plugin-svgr'
+import svgr from 'vite-plugin-svgr'
 import tsconfigPaths from 'vite-tsconfig-paths'
 import eslintPlugin from 'vite-plugin-eslint'
 import * as path from 'path';
@@ -9,7 +9,7 @@ import * as path from 'path';
 export default defineConfig({
   plugins: [
     react(),
-    svgrPlugin(),
+    svgr(),
     tsconfigPaths(),
     eslintPlugin({
       cache: true,

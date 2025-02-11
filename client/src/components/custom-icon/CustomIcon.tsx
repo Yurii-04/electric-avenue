@@ -1,12 +1,15 @@
 import React from 'react';
 import { SvgIcon, SvgIconProps } from '@mui/material';
-import { ReactComponent as StarIcon } from '~/assets/logo.svg';
 
-const CustomIcon = (props: SvgIconProps) => (
-  <SvgIcon component={StarIcon} {...props} inheritViewBox />
-);
+interface CustomIconProps extends SvgIconProps {
+  icon: React.ElementType;
+}
 
+const CustomIcon: React.FC<CustomIconProps> = ({ icon, ...props }) => {
+  return <SvgIcon component={icon} {...props} inheritViewBox />;
+}
 export default CustomIcon;
 
 
-// <SvgIcon fontSize={fontSize} color={color} component={component ?? 'svg'} inheritViewBox />;
+// import ProfileIcon from '~/assets/img/common/profile.svg?react'
+// <CustomIcon icon={ProfileIcon} />

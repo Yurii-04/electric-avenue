@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
-    "module": "Node16",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
     "target": "Esnext",
     "useDefineForClassFields": true,
     "lib": [
@@ -13,7 +14,6 @@
     "allowSyntheticDefaultImports": true,
     "strict": true,
     "forceConsistentCasingInFileNames": true,
-    "moduleResolution": "node16",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
@@ -26,8 +26,7 @@
     },
     "types": [
       "vite-plugin-svgr/client"
-    ],
-    "allowImportingTsExtensions": true
+    ]
   },
   "include": [
     "src"
