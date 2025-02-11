@@ -7,7 +7,7 @@ import {
 import { PrismaService } from '~/prisma/prisma.service';
 import { CreateProductDto, UpdateProductDto } from '~/product/dto';
 import { PageDto, PageMetaDto, PageOptionsDto } from '~/common/dtos';
-import { Products } from '@prisma/client';
+import { Prisma, Products } from '@prisma/client';
 import { CloudinaryService } from '~/cloudinary/cloudinary.service';
 import { ProductMainFields, ProductWithAttributes } from '~/product/types';
 
@@ -146,6 +146,35 @@ export class ProductService {
         },
       }),
       this.prisma.products.count(),
+    ]);
+
+    const pageMetaDto = new PageMetaDto({ pageOptionsDto, itemCount });
+    return new PageDto(data, pageMetaDto);
+  }
+
+  async searchProducts(
+    title: string,
+    pageOptionsDto: PageOptionsDto,
+  ): Promise<PageDto<ProductMainFields>> {
+    const { skip, take, orderBy, order } = pageOptionsDto;
+    const where: Prisma.ProductsWhereInput = {
+      title: {
+        contains: title,
+        mode: 'insensitive',
+      },
+    };
+
+    const [data, itemCount] = await Promise.all([
+      this.prisma.products.findMany({
+        select: { ...this.selectedFields },
+        where,
+        skip,
+        take,
+        orderBy: {
+          [orderBy]: order,
+        },
+      }),
+      this.prisma.products.count({ where }),
     ]);
 
     const pageMetaDto = new PageMetaDto({ pageOptionsDto, itemCount });

@@ -50,6 +50,20 @@ export class ProductController {
 
   @Public()
   @Get('/search')
+  async searchProducts(
+    @Query('title') title: string,
+    @Query(
+      'page-options',
+      new ParseJsonPipe(),
+      new QueryValidationPipe(PageOptionsDto),
+    )
+    pageOptionsDto: PageOptionsDto,
+  ) {
+    return this.productService.searchProducts(title, pageOptionsDto);
+  }
+
+  @Public()
+  @Get('/search-by-category')
   async getByCategory(
     @Query('category') categoryName: string,
     @Query(
