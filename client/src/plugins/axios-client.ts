@@ -1,6 +1,6 @@
-import axios from 'axios';
+import axios, { AxiosInstance } from 'axios';
 
-export const axiosClient = axios.create({
+export const axiosClient: AxiosInstance = axios.create({
   withCredentials: true,
   baseURL: import.meta.env.VITE_API_BASE_URL,
 })

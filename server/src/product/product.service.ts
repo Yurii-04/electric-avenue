@@ -157,6 +157,11 @@ export class ProductService {
     pageOptionsDto: PageOptionsDto,
   ): Promise<PageDto<ProductMainFields>> {
     const { skip, take, orderBy, order } = pageOptionsDto;
+
+    if (!title) {
+      return new PageDto([], new PageMetaDto({ pageOptionsDto, itemCount: 0 }));
+    }
+
     const where: Prisma.ProductsWhereInput = {
       title: {
         contains: title,
