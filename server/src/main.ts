@@ -9,7 +9,7 @@ import * as process from 'node:process';
   const app = await NestFactory.create(AppModule);
   app.use(cookieParser());
   app.enableCors({
-    origin: process.env.CLIENT_URL,
+    origin: [process.env.CLIENT_URL, process.env.CLIENT_URL2],
     methods: 'GET,POST,PUT,DELETE',
     credentials: true,
   });

@@ -9,7 +9,3 @@ const CustomIcon: React.FC<CustomIconProps> = ({ icon, ...props }) => {
   return <SvgIcon component={icon} {...props} inheritViewBox />;
 }
 export default CustomIcon;
-
-
-// import ProfileIcon from '~/assets/img/common/profile.svg?react'
-// <CustomIcon icon={ProfileIcon} />

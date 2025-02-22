@@ -1,20 +1,24 @@
-import { Dispatch, SetStateAction, useCallback, useState } from 'react';
-import { Input, Box } from '@mui/material';
+import React, { useCallback, useState } from 'react';
+import { InputAdornment, TextField } from '@mui/material';
 import { ErrorResponse, Product, ProductWithPagination, SearchParams, snackbarVariants } from '~/types';
 import { useDebounce } from '~/hooks/use-debounce';
 import { useAxios } from '~/hooks/use-axios';
 import { productService } from '~/services/product-service';
 import { useSnackbarContext } from '~/context/snackbar';
 import { defaultResponse } from '~/constants/response';
+import SearchIcon from '@mui/icons-material/Search';
+import { styles } from '~/containers/search-bar/search-bar.styles';
+import { useToggleVisibility  } from '~/hooks/use-toggle-visibility';
+import Box from '@mui/material/Box';
+import { SearchResultsList } from '~/components/search-bar-result-list/SearchResultsList';
 
-type SearchBarProps = {
-  setData: Dispatch<SetStateAction<Product[]>>;
-}
-
-const SearchBar = ({ setData }: SearchBarProps) => {
+const SearchBar = () => {
   const [input, setInput] = useState<string>('');
-  const {setAlert} = useSnackbarContext();
-
+  const [data, setData] = useState<Product[]>([]);
+  const [isLocalLoading, setIsLocalLoading] = useState<boolean>(false);
+  const { isOpen, setIsOpen, containerRef } = useToggleVisibility <HTMLDivElement>();
+  const { setAlert } = useSnackbarContext();
+  const shouldShowList = isOpen && input.length > 0;
   const serviceFunction = useCallback(
     (params?: SearchParams) => productService.searchProducts(params),
     [],
@@ -24,35 +28,60 @@ const SearchBar = ({ setData }: SearchBarProps) => {
     setAlert({
       severity: snackbarVariants.Error,
       message: `${error.statusCode} - ${error.error}`,
-    })
-  }
+    });
+  };
 
-  const { fetchData } = useAxios<ProductWithPagination, SearchParams>({
+  const { fetchData, loading } = useAxios<ProductWithPagination, SearchParams>({
     service: serviceFunction,
     defaultResponse,
-    onResponse: (response) => setData(response.data),
+    onResponse: (response) => {
+      setData(response.data)
+      setIsLocalLoading(false);
+    },
     onResponseError,
     fetchOnMount: false,
   });
 
-  const debouncedFetchData = useDebounce<SearchParams>(fetchData);
+  const debouncedFetchData = useDebounce<SearchParams>(fetchData, 200);
 
   const handleChange = (value: string) => {
     setInput(value);
-    if(value.trim() === '') {
+    if (value.trim() === '') {
       setData([]);
+      setIsLocalLoading(false);
       return;
     }
+    setIsLocalLoading(true);
     debouncedFetchData({ title: value });
   };
 
   return (
-    <Box>
-      <Input
-        placeholder="Type to search..."
+    <Box
+      component="form"
+      onSubmit={(e) => e.preventDefault()}
+      ref={containerRef}
+    >
+      <TextField
         value={input}
         onChange={(e) => handleChange(e.target.value)}
+        onFocus={() => setIsOpen(true)}
+        sx={styles.searchBar}
+        fullWidth
+        placeholder="I'm looking..."
+        type="search"
+        autoComplete="off"
+        aria-label="Search products"
+        slotProps={{
+          input: {
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon />
+              </InputAdornment>
+            ),
+          },
+        }}
       />
+      {shouldShowList && <SearchResultsList data={data} isLoading={isLocalLoading || loading} />}
     </Box>
   );
 };

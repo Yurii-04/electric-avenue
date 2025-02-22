@@ -1,132 +1,124 @@
 import * as React from 'react';
 import { useState } from 'react';
 import { styles } from './header.styles';
-import { theme } from '~/styles/app-theme';
 import {
   Box,
   Button,
   IconButton,
-  InputAdornment,
-  Menu,
   MenuItem,
-  TextField,
   AppBar,
   Toolbar,
   useMediaQuery,
+  useTheme,
 } from '@mui/material';
 import Container from '~/components/container/Container';
-import Logo from '~/components/logo/logo';
-import CustomIcon from '~/components/custom-icon/CustomIcon';
+import ImgIcon from '~/components/img-icon/ImgIcon';
 import GridViewOutlinedIcon from '@mui/icons-material/GridViewOutlined';
-import SearchIcon from '@mui/icons-material/Search';
-import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
-import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined';
 import MenuIcon from '@mui/icons-material/Menu';
-import ProfileIcon from '~/assets/img/common/profile.svg?react';
+import SearchBar from '~/containers/search-bar/SearchBar';
+import { CustomMenu } from '~/styles/app-theme/styled-components/custom-menu';
+import { authRoutes } from '~/router/constants/authRoutes';
+import Sidebar from '~/containers/layout/sidebar/Sidebar';
+import { useModalContext } from '~/context/modal';
+import Categories from '~/containers/categories/Categories';
 
-function Header() {
+const Header = () => {
   const auth = true;
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const theme = useTheme();
   const isTablet = useMediaQuery(theme.breakpoints.down('md'));
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+  const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
+  const { openModal } = useModalContext();
 
   const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   };
 
-  const handleClose = () => {
+  const handleMenuClose = () => {
     setAnchorEl(null);
   };
 
-  const leftSection =
-    <Box sx={styles.leftSection}>
-      {!isTablet ? (
-        <>
-          {!isTablet && <Logo />}
-          <Button
-            startIcon={<GridViewOutlinedIcon />}
-            variant="text"
-          >
-            Catalog
-          </Button>
-        </>
-      ) : (
-        <IconButton>
-          <MenuIcon />
-        </IconButton>
-      )}
-    </Box>;
+  const toggleDrawer = (newOpen: boolean) => {
+    setDrawerOpen(newOpen);
+  };
 
-  const lastSection = !isMobile &&
-    <Box sx={styles.lastSection}>
-      <Box sx={styles.iconsWrapper}>
-        <IconButton>
-          <FavoriteBorderIcon />
-        </IconButton>
-        <IconButton>
-          <ShoppingCartOutlinedIcon />
-        </IconButton>
-      </Box>
-      {!auth ?
-        <Button variant="contained" sx={{ maxHeight: '120%' }}>Login</Button> : (
-          <Box>
-            <IconButton
-              aria-haspopup="true"
-              onClick={handleMenu}
-            >
-              <CustomIcon icon={ProfileIcon} fontSize="small" />
-            </IconButton>
-            <Menu
-              anchorEl={anchorEl}
-              anchorOrigin={{
-                vertical: 'top',
-                horizontal: 'right',
-              }}
-              keepMounted
-              transformOrigin={{
-                vertical: 'top',
-                horizontal: 'right',
-              }}
-              open={Boolean(anchorEl)}
-              onClose={handleClose}
-            >
-              <MenuItem onClick={handleClose}>My account</MenuItem>
-              <MenuItem onClick={handleClose}>Add a product</MenuItem>
-            </Menu>
-          </Box>
-        )}
-    </Box>;
+  const handleCatalogBtnClick = () => {
+    openModal({
+      component: <Categories />,
+      paperProps: {
+        sx: { width: '100%' },
+      },
+    });
+  };
 
   return (
     <Container>
       <AppBar position="static" sx={styles.header}>
         <Toolbar>
-          {leftSection}
-          <Box sx={styles.centerSection}>
-            <TextField
-              variant="outlined"
-              placeholder="I'm looking..."
-              slotProps={{
-                input: {
-                  endAdornment: (
-                    <InputAdornment position="start">
-                      <Button
-                        onClick={() => console.log('12')}
-                      >
-                        <SearchIcon cursor="pointer" />
-                      </Button>
-                    </InputAdornment>
-                  ),
-                },
-              }}
-            />
+          <Box sx={styles.leftSection}>
+            {!isTablet ? (
+              <>
+                <ImgIcon />
+                <Button
+                  startIcon={<GridViewOutlinedIcon />}
+                  variant="text"
+                  onClick={handleCatalogBtnClick}
+                >
+                  Catalog
+                </Button>
+              </>
+            ) : (
+              <>
+                <IconButton onClick={() => toggleDrawer(true)}>
+                  <MenuIcon />
+                </IconButton>
+                <Sidebar
+                  open={drawerOpen}
+                  toggleDrawer={toggleDrawer}
+                  auth={auth}
+                  handleCatalogBtnClick={handleCatalogBtnClick}
+                />
+              </>
+            )}
           </Box>
-          {lastSection}
+          <Box sx={styles.centerSection}>
+            <SearchBar />
+          </Box>
+          <Box sx={styles.lastSection}>
+            <Box sx={styles.iconsWrapper}>
+              <IconButton>
+                {authRoutes.navBar.favorites.icon}
+              </IconButton>
+              <IconButton>
+                {authRoutes.navBar.cart.icon}
+              </IconButton>
+            </Box>
+            {!auth ?
+              <Button variant="contained" size="small">Login</Button> : (
+                <Box>
+                  <IconButton
+                    aria-haspopup="true"
+                    onClick={handleMenu}
+                  >
+                    {authRoutes.navBar.myAccount.icon}
+                  </IconButton>
+                  <CustomMenu
+                    anchorEl={anchorEl}
+                    open={Boolean(anchorEl)}
+                    transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+                    anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+                    onClose={handleMenuClose}
+                  >
+                    <MenuItem onClick={handleMenuClose}>{authRoutes.navBar.myAccount.text}</MenuItem>
+                    <MenuItem onClick={handleMenuClose}>{authRoutes.navBar.addProduct.text}</MenuItem>
+                  </CustomMenu>
+                </Box>
+              )}
+          </Box>
         </Toolbar>
       </AppBar>
     </Container>
   );
-}
+};
 
 export default Header;
