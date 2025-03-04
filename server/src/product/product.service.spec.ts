@@ -373,7 +373,7 @@ describe('ProductService', () => {
 
   describe('getByCategory', () => {
     it('should return products by category with pagination', async () => {
-      const categoryName = 'Electronics';
+      const categoryId = 1;
       const pageOptions = {
         page: 2,
         take: 1,
@@ -400,12 +400,12 @@ describe('ProductService', () => {
       prisma.products.findMany.mockResolvedValue(mockProducts[1]);
       prisma.products.count.mockResolvedValue(itemCount);
 
-      const result = await service.getByCategory(categoryName, pageOptionsDto);
+      const result = await service.getByCategory(categoryId, pageOptionsDto);
 
       expect(prisma.products.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: {
-            category: { name: { equals: categoryName, mode: 'insensitive' } },
+            category: { id: categoryId },
           },
           skip: pageOptionsDto.skip,
           take: pageOptionsDto.take,
