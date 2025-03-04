@@ -24,7 +24,7 @@ import Categories from '~/containers/categories/Categories';
 import { Link } from 'react-router-dom';
 
 const Header = () => {
-  const auth = true;
+  const auth = false;
   const theme = useTheme();
   const isTablet = useMediaQuery(theme.breakpoints.down('md'));
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);

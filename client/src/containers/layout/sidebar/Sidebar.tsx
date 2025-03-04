@@ -9,6 +9,7 @@ import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import { styles } from '~/containers/layout/sidebar/styles';
 import ImgIcon from '~/components/img-icon/ImgIcon';
 import { Link } from 'react-router-dom';
+import AccountCircleRoundedIcon from '@mui/icons-material/AccountCircleRounded';
 
 type SidebarProps = {
   open: boolean
@@ -66,6 +67,19 @@ const Sidebar: FC<SidebarProps> = ({ open, toggleDrawer, auth, handleCatalogBtnC
                 Catalog
               </Button>
             </ListItem>
+            {auth ||
+              <ListItem>
+                <Button
+                  startIcon={<AccountCircleRoundedIcon fontSize="large" />}
+                  variant="contained"
+                  fullWidth
+                  sx={styles.loginBtn}
+                  onClick={() => toggleDrawer(false)}
+                >
+                  Login
+                </Button>
+              </ListItem>
+            }
           </List>
           <Divider />
         </Box>
