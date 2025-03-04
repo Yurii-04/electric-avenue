@@ -65,7 +65,7 @@ export class ProductController {
   @Public()
   @Get('/search-by-category')
   async getByCategory(
-    @Query('category') categoryName: string,
+    @Query('category') categoryId: number,
     @Query(
       'page-options',
       new ParseJsonPipe(),
@@ -73,7 +73,7 @@ export class ProductController {
     )
     pageOptionsDto: PageOptionsDto,
   ) {
-    return this.productService.getByCategory(categoryName, pageOptionsDto);
+    return this.productService.getByCategory(categoryId, pageOptionsDto);
   }
 
   @Public()

@@ -15,7 +15,7 @@ import { SearchResultsList } from '~/components/search-bar-result-list/SearchRes
 const SearchBar = () => {
   const [input, setInput] = useState<string>('');
   const [data, setData] = useState<Product[]>([]);
-  const [isLocalLoading, setIsLocalLoading] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const { isOpen, setIsOpen, containerRef } = useToggleVisibility <HTMLDivElement>();
   const { setAlert } = useSnackbarContext();
   const shouldShowList = isOpen && input.length > 0;
@@ -31,12 +31,12 @@ const SearchBar = () => {
     });
   };
 
-  const { fetchData, loading } = useAxios<ProductWithPagination, SearchParams>({
+  const { fetchData } = useAxios<ProductWithPagination, SearchParams>({
     service: serviceFunction,
     defaultResponse,
     onResponse: (response) => {
       setData(response.data)
-      setIsLocalLoading(false);
+      setIsLoading(false);
     },
     onResponseError,
     fetchOnMount: false,
@@ -48,10 +48,10 @@ const SearchBar = () => {
     setInput(value);
     if (value.trim() === '') {
       setData([]);
-      setIsLocalLoading(false);
+      setIsLoading(false);
       return;
     }
-    setIsLocalLoading(true);
+    setIsLoading(true);
     debouncedFetchData({ title: value });
   };
 
@@ -81,7 +81,7 @@ const SearchBar = () => {
           },
         }}
       />
-      {shouldShowList && <SearchResultsList data={data} isLoading={isLocalLoading || loading} />}
+      {shouldShowList && <SearchResultsList data={data} isLoading={isLoading} />}
     </Box>
   );
 };

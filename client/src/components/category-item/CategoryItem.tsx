@@ -3,19 +3,30 @@ import { ListItem, ListItemButton, ListItemText } from '@mui/material';
 import ImgIcon from '~/components/img-icon/ImgIcon';
 import { ChevronRight } from '@mui/icons-material';
 import { styles } from '~/components/category-item/styles';
+import { useNavigate } from 'react-router-dom';
+import { FC } from 'react';
+import { guestRoutes } from '~/router/constants/guestRoutes';
 
 type CategoryItemProps = {
   category: Category
   onClick: (category: Category) => void;
-  selected: boolean;
+  closeModal: () => void;
 }
 
-const CategoryItem = ({ category, onClick, selected }: CategoryItemProps) => {
+const CategoryItem: FC<CategoryItemProps> = ({ category, onClick, closeModal }) => {
+  const navigate = useNavigate();
+  const handleClick = () => {
+    if (category.parentId && !category.isGroup) {
+      closeModal();
+      navigate(guestRoutes.products.searchByCategory(category.id));
+    }
+    onClick(category);
+  };
+
   return (
-    <ListItem disablePadding>
+    <ListItem sx={styles.li} disablePadding>
       <ListItemButton
-        onClick={() => onClick(category)}
-        selected={selected}
+        onClick={handleClick}
         sx={styles.liBtn}
       >
         <ImgIcon
@@ -24,7 +35,7 @@ const CategoryItem = ({ category, onClick, selected }: CategoryItemProps) => {
           sx={styles.imgIcon}
         />
         <ListItemText primary={category.name} />
-        <ChevronRight sx={styles.chevronRight} />
+        <ChevronRight />
       </ListItemButton>
     </ListItem>
   );

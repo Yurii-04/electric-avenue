@@ -2,7 +2,7 @@ import React, { FC, useState } from 'react';
 import { Dialog, DialogProps, IconButton, useMediaQuery, useTheme } from '@mui/material';
 import Box from '@mui/material/Box';
 import { styles } from '~/components/popup-dialog/styles';
-import CloseIcon from '@mui/icons-material/Close'
+import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import ConfirmDialog from '~/components/confirm-dialog/ConfirmDialog';
 
 type PopupDialogProps = {
@@ -31,13 +31,13 @@ const PopupDialog: FC<PopupDialogProps> = (
   const handleClose = () => closeModalAfterDelay(0);
 
   const handleConfirm = () => {
-    setConfirmDialogOpen(false)
-    handleClose()
-  }
+    setConfirmDialogOpen(false);
+    handleClose();
+  };
 
   const handleDismiss = () => {
-    setConfirmDialogOpen(false)
-  }
+    setConfirmDialogOpen(false);
+  };
 
   return (
     <>
@@ -58,15 +58,15 @@ const PopupDialog: FC<PopupDialogProps> = (
             onClick={() => closeOnly ? handleClose() : setConfirmDialogOpen(true)}
             sx={styles.icon}
           >
-            <CloseIcon />
+            <CloseRoundedIcon />
           </IconButton>
           <Box sx={styles.contentWrapper}>{content}</Box>
         </Box>
       </Dialog>
       {!closeOnly && (
         <ConfirmDialog
-          message='Are you certain you want to close? Any unsaved changes will be lost'
-          title='Please Confirm'
+          message="Are you certain you want to close? Any unsaved changes will be lost"
+          title="Please Confirm"
           onConfirm={handleConfirm}
           onDismiss={handleDismiss}
           open={isConfirmDialogOpen}

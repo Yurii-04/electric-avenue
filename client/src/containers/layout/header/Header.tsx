@@ -21,6 +21,7 @@ import { authRoutes } from '~/router/constants/authRoutes';
 import Sidebar from '~/containers/layout/sidebar/Sidebar';
 import { useModalContext } from '~/context/modal';
 import Categories from '~/containers/categories/Categories';
+import { Link } from 'react-router-dom';
 
 const Header = () => {
   const auth = true;
@@ -28,7 +29,8 @@ const Header = () => {
   const isTablet = useMediaQuery(theme.breakpoints.down('md'));
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
-  const { openModal } = useModalContext();
+  const { closeModal, openModal } = useModalContext();
+  const { myAccount, addProduct, favorites, cart } = authRoutes.navBar;
 
   const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -44,11 +46,41 @@ const Header = () => {
 
   const handleCatalogBtnClick = () => {
     openModal({
-      component: <Categories />,
+      component: <Categories closeModal={closeModal} />,
       paperProps: {
-        sx: { width: '100%' },
+        sx: { minWidth: '270px' },
       },
     });
+  };
+
+  const renderLastSection = () => {
+    if (!auth) {
+      return <Button variant="contained" size="small">Login</Button>;
+    }
+    return (
+      <Box>
+        <IconButton
+          aria-haspopup="true"
+          onClick={handleMenu}
+        >
+          {authRoutes.navBar.myAccount.icon}
+        </IconButton>
+        <CustomMenu
+          anchorEl={anchorEl}
+          open={Boolean(anchorEl)}
+          transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+          anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+          onClose={handleMenuClose}
+        >
+          <MenuItem onClick={handleMenuClose}>
+            <Link to={myAccount.route}>{myAccount.text}</Link>
+          </MenuItem>
+          <MenuItem onClick={handleMenuClose}>
+            <Link to={addProduct.route}>{addProduct.text}</Link>
+          </MenuItem>
+        </CustomMenu>
+      </Box>
+    );
   };
 
   return (
@@ -87,33 +119,13 @@ const Header = () => {
           <Box sx={styles.lastSection}>
             <Box sx={styles.iconsWrapper}>
               <IconButton>
-                {authRoutes.navBar.favorites.icon}
+                <Link to={favorites.route}>{favorites.icon}</Link>
               </IconButton>
               <IconButton>
-                {authRoutes.navBar.cart.icon}
+                <Link to={cart.route}>{cart.icon}</Link>
               </IconButton>
             </Box>
-            {!auth ?
-              <Button variant="contained" size="small">Login</Button> : (
-                <Box>
-                  <IconButton
-                    aria-haspopup="true"
-                    onClick={handleMenu}
-                  >
-                    {authRoutes.navBar.myAccount.icon}
-                  </IconButton>
-                  <CustomMenu
-                    anchorEl={anchorEl}
-                    open={Boolean(anchorEl)}
-                    transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-                    anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
-                    onClose={handleMenuClose}
-                  >
-                    <MenuItem onClick={handleMenuClose}>{authRoutes.navBar.myAccount.text}</MenuItem>
-                    <MenuItem onClick={handleMenuClose}>{authRoutes.navBar.addProduct.text}</MenuItem>
-                  </CustomMenu>
-                </Box>
-              )}
+            {renderLastSection()}
           </Box>
         </Toolbar>
       </AppBar>

@@ -183,7 +183,7 @@ export class ProductService {
   }
 
   async getByCategory(
-    categoryName: string,
+    categoryId: number,
     pageOptionsDto: PageOptionsDto,
   ): Promise<PageDto<ProductMainFields>> {
     const { skip, take, orderBy, order } = pageOptionsDto;
@@ -197,20 +197,14 @@ export class ProductService {
         },
         where: {
           category: {
-            name: {
-              equals: categoryName,
-              mode: 'insensitive',
-            },
+            id: categoryId,
           },
         },
       }),
       this.prisma.products.count({
         where: {
           category: {
-            name: {
-              equals: categoryName,
-              mode: 'insensitive',
-            },
+            id: categoryId,
           },
         },
       }),

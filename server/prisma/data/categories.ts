@@ -8,212 +8,208 @@ type Category = {
 export const categories: Category[] = [
   {
     name: 'Computer components',
-    icon: 'https://res.cloudinary.com/dohpr9r3z/image/upload/v1735933504/categories/root-catgories/ajayk9zwsbmdkmnza1fd.svg',
+    icon: 'https://res.cloudinary.com/dohpr9r3z/image/upload/f_auto,q_auto/v1/categories/root-catgories/knm8xbz7fbrtgt5wmsfz',
   }, // 1
   {
-    name: 'Computer & Laptops',
-    icon: 'https://res.cloudinary.com/dohpr9r3z/image/upload/v1735933504/categories/root-catgories/zbo7c5k5cp4ufvz8ct80.svg',
+    name: 'Computers & Laptops',
+    icon: 'https://res.cloudinary.com/dohpr9r3z/image/upload/f_auto,q_auto/v1/categories/root-catgories/otzeucqwvoirzlw7ffnp',
   }, // 2
   {
     name: 'Monitors & TVs',
-    icon: 'https://res.cloudinary.com/dohpr9r3z/image/upload/v1735933505/categories/root-catgories/g7m2sihmcs0wjq2ogiyp.svg',
+    icon: 'https://res.cloudinary.com/dohpr9r3z/image/upload/f_auto,q_auto/v1/categories/root-catgories/mfvds6c5agybnhrqbkvy',
   }, // 3
   {
     name: 'Periphery',
-    icon: 'https://res.cloudinary.com/dohpr9r3z/image/upload/v1735933506/categories/root-catgories/bild7zwqbfayreksas3i.svg',
+    icon: 'https://res.cloudinary.com/dohpr9r3z/image/upload/f_auto,q_auto/v1/categories/root-catgories/yqxk2huclsehfqdcakpx',
   }, // 4
   {
     name: 'Console gaming',
-    icon: 'https://res.cloudinary.com/dohpr9r3z/image/upload/v1735933505/categories/root-catgories/z7psor9oy9tgfkz9gfyk.svg',
+    icon: 'https://res.cloudinary.com/dohpr9r3z/image/upload/f_auto,q_auto/v1/categories/root-catgories/ebcheeoym5r4faol2i7l',
   }, // 5
   {
     name: 'Network equipment',
-    icon: 'https://res.cloudinary.com/dohpr9r3z/image/upload/v1735933506/categories/root-catgories/qjxthvd1yuf7vao09zpw.svg',
+    icon: 'https://res.cloudinary.com/dohpr9r3z/image/upload/f_auto,q_auto/v1/categories/root-catgories/w4oouaxkverntvqiyxkt',
   }, // 6
   {
     name: 'Services & Software',
-    icon: 'https://res.cloudinary.com/dohpr9r3z/image/upload/v1735933506/categories/root-catgories/zug6l4v5ute5aip7ihcp.svg',
+    icon: 'https://res.cloudinary.com/dohpr9r3z/image/upload/f_auto,q_auto/v1/categories/root-catgories/sed9op8ydg7oijqs3xsk',
   }, // 7
-  {
-    name: 'Other electronics',
-    icon: 'https://res.cloudinary.com/dohpr9r3z/image/upload/v1735933506/categories/root-catgories/qdhrdirdjyb7n6mmzdqz.svg',
-  }, // 8
 
   {
     name: 'Main Components',
     parentId: 1,
     isGroup: true,
-    icon: 'https://res.cloudinary.com/dohpr9r3z/image/upload/v1735933502/categories/groups/gab8tt4dfnq4jj1h69hw.svg',
-  }, // 9
+    icon: 'https://res.cloudinary.com/dohpr9r3z/image/upload/f_auto,q_auto/v1/categories/groups/d9olgzbpz0qewrja5ddc',
+  }, // 8
   {
     name: 'Assembly accessories',
     parentId: 1,
     isGroup: true,
-    icon: 'https://res.cloudinary.com/dohpr9r3z/image/upload/v1735933500/categories/groups/gjcowvbgo19buejrebkv.svg',
-  }, // 10
+    icon: 'https://res.cloudinary.com/dohpr9r3z/image/upload/f_auto,q_auto/v1/categories/groups/uxcgv4j5wd5pzavtij6z',
+  }, // 9
   {
     name: 'Computers',
     parentId: 2,
     isGroup: true,
-    icon: 'https://res.cloudinary.com/dohpr9r3z/image/upload/v1735933502/categories/groups/z8xyujg8i0hxcb29xruu.svg',
-  }, // 11
+    icon: 'https://res.cloudinary.com/dohpr9r3z/image/upload/f_auto,q_auto/v1/categories/groups/ap7uf4lyoyzpme8kcu0g',
+  }, // 10
   {
     name: 'Laptops',
     parentId: 2,
     isGroup: true,
-    icon: 'https://res.cloudinary.com/dohpr9r3z/image/upload/v1735933501/categories/groups/bhbom2j8xlzk5cufnfsr.svg',
-  }, // 12
+    icon: 'https://res.cloudinary.com/dohpr9r3z/image/upload/f_auto,q_auto/v1/categories/groups/bh7v4mgxziiotayt4xiz',
+  }, // 11
   {
     name: 'Monitors',
     parentId: 3,
     isGroup: true,
-    icon: 'https://res.cloudinary.com/dohpr9r3z/image/upload/v1735933501/categories/groups/p5komuvp3q4psrihswvb.svg',
-  }, // 13
+    icon: 'https://res.cloudinary.com/dohpr9r3z/image/upload/f_auto,q_auto/v1/categories/groups/tz1jei3igcgyirbybjye',
+  }, // 12
   {
     name: 'TVs',
     parentId: 3,
     isGroup: true,
-    icon: 'https://res.cloudinary.com/dohpr9r3z/image/upload/v1735933504/categories/groups/mawccd9gt6st6o4vmknp.svg',
-  }, // 14
+    icon: 'https://res.cloudinary.com/dohpr9r3z/image/upload/f_auto,q_auto/v1/categories/groups/rqjtfbu8zdywmckgrrti',
+  }, // 13
   {
     name: 'Accessories for monitors',
     parentId: 3,
     isGroup: true,
-    icon: 'https://res.cloudinary.com/dohpr9r3z/image/upload/v1735933500/categories/groups/mrzzw0fz3y2cg6qlcctr.svg',
-  }, // 15
+    icon: 'https://res.cloudinary.com/dohpr9r3z/image/upload/f_auto,q_auto/v1/categories/groups/uxcgv4j5wd5pzavtij6z',
+  }, // 14
   {
     name: 'Manipulators & accessories',
     parentId: 4,
     isGroup: true,
-    icon: 'https://res.cloudinary.com/dohpr9r3z/image/upload/v1735933502/categories/groups/blkn2yfn1yqdpsaerkgq.svg',
-  }, // 16
+    icon: 'https://res.cloudinary.com/dohpr9r3z/image/upload/f_auto,q_auto/v1/categories/groups/lx7zdniqztwpvtpeatsv',
+  }, // 15
   {
     name: 'Audio / video equipment',
     parentId: 4,
     isGroup: true,
-    icon: 'https://res.cloudinary.com/dohpr9r3z/image/upload/v1735933501/categories/groups/nz7skzptdfgnvvrp4udi.svg',
-  }, // 17
+    icon: 'https://res.cloudinary.com/dohpr9r3z/image/upload/f_auto,q_auto/v1/categories/groups/nozqt3yu0xi3sprnsvjb',
+  }, // 16
   {
     name: 'Stationary',
     parentId: 5,
     isGroup: true,
-    icon: 'https://res.cloudinary.com/dohpr9r3z/image/upload/v1735933504/categories/groups/d3s0lhjqgbbo3jv1r8wo.svg',
-  }, // 18
+    icon: 'https://res.cloudinary.com/dohpr9r3z/image/upload/f_auto,q_auto/v1/categories/groups/jyxjxxbirqowl6ffds4f',
+  }, // 17
   {
     name: 'Portable',
     parentId: 5,
     isGroup: true,
-    icon: 'https://res.cloudinary.com/dohpr9r3z/image/upload/v1735933502/categories/groups/z36gxoyetsgnbsfscman.svg',
-  }, // 19
+    icon: 'https://res.cloudinary.com/dohpr9r3z/image/upload/f_auto,q_auto/v1/categories/groups/q6qpwmauivwykowpeudv',
+  }, // 18
   {
     name: 'Games',
     parentId: 5,
     isGroup: true,
-    icon: 'https://res.cloudinary.com/dohpr9r3z/image/upload/v1735933501/categories/groups/vaream9skruw3wjctorf.svg',
-  }, // 20
+    icon: 'https://res.cloudinary.com/dohpr9r3z/image/upload/f_auto,q_auto/v1/categories/groups/io6vrohe5xbwpdfxthu4',
+  }, // 19
   {
     name: 'Peripherals and accessories for consoles',
     parentId: 5,
     isGroup: true,
-    icon: 'https://res.cloudinary.com/dohpr9r3z/image/upload/v1735933502/categories/groups/w925taeuuufr5w23mybu.svg',
-  }, // 21
+    icon: 'https://res.cloudinary.com/dohpr9r3z/image/upload/f_auto,q_auto/v1/categories/groups/sbggycdok7vbxdistiiy',
+  }, // 20
   {
     name: 'Network devices',
     parentId: 6,
     isGroup: true,
-    icon: 'https://res.cloudinary.com/dohpr9r3z/image/upload/v1735933502/categories/groups/fcdxiqowdjxxuwmophle.svg',
-  }, // 22
+    icon: 'https://res.cloudinary.com/dohpr9r3z/image/upload/f_auto,q_auto/v1/categories/groups/mlnezazoz1beqy0hzglv',
+  }, // 21
   {
     name: 'Services',
     parentId: 7,
     isGroup: true,
-    icon: 'https://res.cloudinary.com/dohpr9r3z/image/upload/v1735933503/categories/groups/x9r4efjql1l1qjmayvdo.svg',
-  }, // 23
+    icon: 'https://res.cloudinary.com/dohpr9r3z/image/upload/f_auto,q_auto/v1/categories/groups/ng5mkh3zd9c1u5gsjhiq',
+  }, // 22
   {
     name: 'Software',
     parentId: 7,
     isGroup: true,
-    icon: 'https://res.cloudinary.com/dohpr9r3z/image/upload/v1735933504/categories/groups/t5spu7ji0lfje9buksop.svg',
-  }, // 24
+    icon: 'https://res.cloudinary.com/dohpr9r3z/image/upload/f_auto,q_auto/v1/categories/groups/o8qsfettlalcdji0zopr',
+  }, // 23
 
-  { name: 'Processors', parentId: 9 },
-  { name: 'Graphics cards', parentId: 9 },
-  { name: 'Motherboards', parentId: 9 },
-  { name: 'RAM', parentId: 9 },
-  { name: 'SSD drives', parentId: 9 },
-  { name: 'HDD drives', parentId: 9 },
-  { name: 'Power supplies', parentId: 9 },
-  { name: 'Cases', parentId: 9 },
-  { name: 'Air cooling for CPUs', parentId: 9 },
-  { name: 'Water cooling for CPUs', parentId: 9 },
-  { name: 'Sound cards', parentId: 9 },
-  { name: 'Network cards', parentId: 9 },
-  { name: 'Case fans', parentId: 10 },
-  { name: 'Holders for video cards', parentId: 10 },
-  { name: 'Thermal paste', parentId: 10 },
-  { name: 'Thermal pads', parentId: 10 },
+  { name: 'Processors', parentId: 8 },
+  { name: 'Graphics cards', parentId: 8 },
+  { name: 'Motherboards', parentId: 8 },
+  { name: 'RAM', parentId: 8 },
+  { name: 'SSD drives', parentId: 8 },
+  { name: 'HDD drives', parentId: 8 },
+  { name: 'Power supplies', parentId: 8 },
+  { name: 'Cases', parentId: 8 },
+  { name: 'Air cooling for CPUs', parentId: 8 },
+  { name: 'Water cooling for CPUs', parentId: 8 },
+  { name: 'Sound cards', parentId: 8 },
+  { name: 'Network cards', parentId: 8 },
+  { name: 'Case fans', parentId: 9 },
+  { name: 'Holders for video cards', parentId: 9 },
+  { name: 'Thermal paste', parentId: 9 },
+  { name: 'Thermal pads', parentId: 9 },
 
-  { name: 'PCs for AAA games', parentId: 11 },
-  { name: 'PC for eSports', parentId: 11 },
-  { name: 'PC for 4K gaming', parentId: 11 },
-  { name: 'Laptops for AAA games', parentId: 12 },
-  { name: 'Laptops for eSports', parentId: 12 },
-  { name: 'Laptops for 4K gaming', parentId: 12 },
+  { name: 'PCs for AAA games', parentId: 10 },
+  { name: 'PC for eSports', parentId: 10 },
+  { name: 'PC for 4K gaming', parentId: 10 },
+  { name: 'Laptops for AAA games', parentId: 11 },
+  { name: 'Laptops for eSports', parentId: 11 },
+  { name: 'Laptops for 4K gaming', parentId: 11 },
 
-  { name: 'MSI', parentId: 13 },
-  { name: 'Samsung', parentId: 13 },
-  { name: 'Acer', parentId: 13 },
-  { name: 'Gigabyte', parentId: 13 },
-  { name: 'Asus', parentId: 13 },
-  { name: 'Quad HD 2K (2560x1440)', parentId: 13 },
-  { name: 'Ultra HD 4K (3840x2160)', parentId: 13 },
-  { name: 'For gaming', parentId: 13 },
-  { name: 'OLED monitors', parentId: 13 },
-  { name: '144 Hz monitors', parentId: 13 },
-  { name: 'Curved monitors', parentId: 13 },
+  { name: 'MSI', parentId: 12 },
+  { name: 'Samsung', parentId: 12 },
+  { name: 'Acer', parentId: 12 },
+  { name: 'Gigabyte', parentId: 12 },
+  { name: 'Asus', parentId: 12 },
+  { name: 'Quad HD 2K (2560x1440)', parentId: 12 },
+  { name: 'Ultra HD 4K (3840x2160)', parentId: 12 },
+  { name: 'For gaming', parentId: 12 },
+  { name: 'OLED monitors', parentId: 12 },
+  { name: '144 Hz monitors', parentId: 12 },
+  { name: 'Curved monitors', parentId: 12 },
 
-  { name: 'QLED', parentId: 14 },
-  { name: '4K', parentId: 14 },
-  { name: 'WI-Fi', parentId: 14 },
+  { name: 'QLED', parentId: 13 },
+  { name: '4K', parentId: 13 },
+  { name: 'WI-Fi', parentId: 13 },
 
-  { name: 'Cables & adapters', parentId: 15 },
-  { name: 'Brackets & stands', parentId: 15 },
-  { name: 'Cleaning products', parentId: 15 },
+  { name: 'Cables & adapters', parentId: 14 },
+  { name: 'Brackets & stands', parentId: 14 },
+  { name: 'Cleaning products', parentId: 14 },
 
-  { name: 'Mice', parentId: 16 },
-  { name: 'Keyboards', parentId: 16 },
-  { name: 'Mousepads', parentId: 16 },
+  { name: 'Mice', parentId: 15 },
+  { name: 'Keyboards', parentId: 15 },
+  { name: 'Mousepads', parentId: 15 },
 
-  { name: 'Headphones', parentId: 17 },
-  { name: 'Speaker systems', parentId: 17 },
-  { name: 'Microphones', parentId: 17 },
-  { name: 'Webcams', parentId: 17 },
+  { name: 'Headphones', parentId: 16 },
+  { name: 'Speaker systems', parentId: 16 },
+  { name: 'Microphones', parentId: 16 },
+  { name: 'Webcams', parentId: 16 },
 
-  { name: 'PlayStation', parentId: 18 },
-  { name: 'Xbox', parentId: 18 },
-  { name: 'Nintendo', parentId: 19 },
-  { name: 'SteamDeck', parentId: 19 },
-  { name: 'Games for Playstation', parentId: 20 },
-  { name: 'Games for Xbox', parentId: 20 },
-  { name: 'Games for Nintendo', parentId: 20 },
-  { name: 'Gamepads', parentId: 21 },
-  { name: 'VR', parentId: 21 },
-  { name: 'Accessories for consoles', parentId: 21 },
+  { name: 'PlayStation', parentId: 17 },
+  { name: 'Xbox', parentId: 17 },
+  { name: 'Nintendo', parentId: 18 },
+  { name: 'SteamDeck', parentId: 18 },
+  { name: 'Games for Playstation', parentId: 19 },
+  { name: 'Games for Xbox', parentId: 19 },
+  { name: 'Games for Nintendo', parentId: 19 },
+  { name: 'Gamepads', parentId: 20 },
+  { name: 'VR', parentId: 20 },
+  { name: 'Accessories for consoles', parentId: 20 },
 
-  { name: 'Routers', parentId: 22 },
-  { name: 'Switches', parentId: 22 },
-  { name: 'Network adapters', parentId: 22 },
+  { name: 'Routers', parentId: 21 },
+  { name: 'Switches', parentId: 21 },
+  { name: 'Network adapters', parentId: 21 },
 
-  { name: 'Upgrading and installing components', parentId: 23 },
-  { name: 'PC / Laptop cleaning', parentId: 23 },
-  { name: 'Software installation and data transfer', parentId: 23 },
+  { name: 'Upgrading and installing components', parentId: 22 },
+  { name: 'PC / Laptop cleaning', parentId: 22 },
+  { name: 'Software installation and data transfer', parentId: 22 },
   {
     name: 'Replacing thermal paste and cleaning the cooling system',
-    parentId: 23,
+    parentId: 22,
   },
-  { name: 'Cable routing inside the PC case', parentId: 23 },
+  { name: 'Cable routing inside the PC case', parentId: 22 },
 
-  { name: 'Antivirus', parentId: 24 },
-  { name: 'Operating system', parentId: 24 },
-  { name: 'Office products', parentId: 24 },
+  { name: 'Antivirus', parentId: 23 },
+  { name: 'Operating system', parentId: 23 },
+  { name: 'Office products', parentId: 23 },
 ];

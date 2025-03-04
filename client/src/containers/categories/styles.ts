@@ -1,14 +1,11 @@
 export const styles = {
-  root: {
-    display: 'flex',
-    maxWidth: '90%',
-    py: { xs: 2, md: 4 },
-    minHeight: { xs: '100vh', md: 'auto' },
-  },
-  box: {
-    width: { xs: '100%', md: '300px' },
+  backButton: {
+    color: 'primary.900',
+    position: 'absolute',
+    top: '10px',
   },
   list: {
-    width: { width: '100%' },
-  }
+    width: { width: { xs: '100vw', sm: '100%' } },
+    mt: 5,
+  },
 };

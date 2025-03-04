@@ -8,9 +8,9 @@ export const styles = {
   },
   contentWrapper: { overflowY: { lg: 'auto' } },
   icon: {
-    color: 'primary.900',
+    color: 'error.900',
     position: 'absolute',
-    right: { xs: '8px', sm: '20px' },
-    top: { xs: '8px', sm: '20px' }
+    right: '10px',
+    top: '10px',
   }
 }

@@ -10,11 +10,13 @@ export const authRoutes = {
       icon: <CustomIcon icon={ProfileIcon} fontSize="small" />,
       text: 'My account',
       path: '/my-account',
+      route: '/my-account',
     },
     addProduct: {
       icon: <AddIcon />,
       text: 'Add a product',
       path: '/add-product',
+      route: '/add-product',
     },
     ...guestRoutes.navBar,
   },

@@ -7,8 +7,7 @@ import { authRoutes } from '~/router/constants/authRoutes';
 import { guestRoutes } from '~/router/constants/guestRoutes';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import { styles } from '~/containers/layout/sidebar/styles';
-import CustomIcon from '~/components/custom-icon/CustomIcon';
-import logo from '~/assets/logo.svg?react';
+import ImgIcon from '~/components/img-icon/ImgIcon';
 
 type SidebarProps = {
   open: boolean
@@ -46,7 +45,7 @@ const Sidebar: FC<SidebarProps> = ({ open, toggleDrawer, auth, handleCatalogBtnC
         <Box>
           <List>
             <ListItem sx={styles.logoLi}>
-              <CustomIcon icon={logo} sx={{ width: '100%' }} />
+              <ImgIcon sx={styles.logo} />
             </ListItem>
             <ListItem>
               <Button

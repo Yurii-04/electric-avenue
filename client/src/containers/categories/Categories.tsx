@@ -1,22 +1,20 @@
-import { Category, ErrorResponse, snackbarVariants } from '~/types';
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Box, Container, List } from '@mui/material';
-import { categoryHelper } from '~/utils/helper-category';
+import { FC, useCallback, useState } from 'react';
 import { useAxios } from '~/hooks/use-axios';
+import { Category, ErrorResponse, snackbarVariants } from '~/types';
+import { Box, List, Divider, IconButton } from '@mui/material';
 import { categoriesService } from '~/services/category-service';
 import { useSnackbarContext } from '~/context/snackbar';
 import { styles } from '~/containers/categories/styles';
-import SubcategoryList from '~/components/category-list/CategoryList';
 import CategoryItem from '~/components/category-item/CategoryItem';
+import { ArrowBack } from '@mui/icons-material';
 
-const Categories = () => {
+type CategoriesProps = {
+  closeModal: () => void
+}
+
+const Categories: FC<CategoriesProps> = ({closeModal}) => {
   const { setAlert } = useSnackbarContext();
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
-
-  const serviceFunction = useCallback(
-    () => categoriesService.fetchCategories(),
-    [],
-  );
 
   const onResponseError = useCallback((error: ErrorResponse) => {
     setAlert({
@@ -26,42 +24,44 @@ const Categories = () => {
   }, [setAlert]);
 
   const { response: categories } = useAxios<Category[]>({
-    service: serviceFunction,
+    service: useCallback(() => categoriesService.fetchCategories(), []),
     defaultResponse: [],
     onResponseError,
   });
 
-  useEffect(() => {
-    if (categories.length > 0 && !selectedCategory) {
-      setSelectedCategory(categories[0]);
-    }
-  }, [categories, selectedCategory]);
+  const handleCategoryClick = useCallback((category: Category) => {
+    setSelectedCategory(category);
+  }, []);
 
-  const rootCategories = useMemo(() => categoryHelper.getRootCategories(categories), [categories]);
-  const groups = useMemo(() => categoryHelper.getGroups(categories, selectedCategory?.id), [categories, selectedCategory?.id]);
-  const items = useMemo(() => categoryHelper.getItems(categories), [categories]);
+  const getCategories = (categories: Category[], parentId: number | null): Category[] =>
+    categories.filter(category => category.parentId === parentId);
 
+
+  const categoriesToShow = selectedCategory
+    ? getCategories(categories, selectedCategory.id)
+    : getCategories(categories, null);
   return (
-    <Container sx={styles.root}>
-      <Box sx={styles.box}>
-        <List sx={styles.list}>
-          {rootCategories.map((category) => (
-            <CategoryItem
-              key={category.id}
-              category={category}
-              selected={selectedCategory?.id === category.id}
-              onClick={setSelectedCategory}
-            />
-          ))}
-        </List>
-      </Box>
+    <Box>
       {selectedCategory && (
-        <SubcategoryList
-          groups={groups}
-          items={items}
-        />
+        <IconButton
+          onClick={() => setSelectedCategory(null)}
+          sx={styles.backButton}
+        >
+          <ArrowBack />
+        </IconButton>
       )}
-    </Container>
+      <List sx={styles.list}>
+        <Divider />
+        {categoriesToShow.map(category => (
+          <CategoryItem
+            key={category.id}
+            category={category}
+            onClick={handleCategoryClick}
+            closeModal={closeModal}
+          />
+        ))}
+      </List>
+    </Box>
   );
 };
 
