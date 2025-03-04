@@ -1,7 +1,6 @@
-import { Container as MuiContainer } from '@mui/material';
+import { Container as MuiContainer, ContainerProps } from '@mui/material';
 import { spliceSx } from '~/utils/helper-functions';
 import { styles } from './container.styles';
-import { ContainerProps } from '@mui/material';
 
 const Container = ({children, sx}: ContainerProps) => {
   return (

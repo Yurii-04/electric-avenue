@@ -118,12 +118,8 @@ const Header = () => {
           </Box>
           <Box sx={styles.lastSection}>
             <Box sx={styles.iconsWrapper}>
-              <IconButton>
-                <Link to={favorites.route}>{favorites.icon}</Link>
-              </IconButton>
-              <IconButton>
-                <Link to={cart.route}>{cart.icon}</Link>
-              </IconButton>
+              <IconButton component={Link} to={favorites.route}>{favorites.icon}</IconButton>
+              <IconButton component={Link} to={cart.route}>{cart.icon}</IconButton>
             </Box>
             {renderLastSection()}
           </Box>

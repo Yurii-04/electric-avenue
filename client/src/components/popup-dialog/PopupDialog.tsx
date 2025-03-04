@@ -24,19 +24,19 @@ const PopupDialog: FC<PopupDialogProps> = (
 ) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const [isConfirmDialogOpen, setConfirmDialogOpen] = useState<boolean>(false);
+  const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState<boolean>(false);
 
   const handleMouseOver = () => timerId && clearTimeout(timerId);
   const handleMouseLeave = () => timerId && closeModalAfterDelay();
   const handleClose = () => closeModalAfterDelay(0);
 
   const handleConfirm = () => {
-    setConfirmDialogOpen(false);
+    setIsConfirmDialogOpen(false);
     handleClose();
   };
 
   const handleDismiss = () => {
-    setConfirmDialogOpen(false);
+    setIsConfirmDialogOpen(false);
   };
 
   return (
@@ -55,7 +55,7 @@ const PopupDialog: FC<PopupDialogProps> = (
           sx={styles.box}
         >
           <IconButton
-            onClick={() => closeOnly ? handleClose() : setConfirmDialogOpen(true)}
+            onClick={() => closeOnly ? handleClose() : setIsConfirmDialogOpen(true)}
             sx={styles.icon}
           >
             <CloseRoundedIcon />

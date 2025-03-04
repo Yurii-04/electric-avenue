@@ -44,10 +44,10 @@ const ConfirmDialog: FC<ConfirmDialogProps> = (
       </DialogContent>
       <DialogActions sx={styles.actions}>
         <Button onClick={onConfirm}>
-          {confirmButton ? confirmButton : 'Yes'}
+          {confirmButton || 'Yes'}
         </Button>
         <Button onClick={onDismiss} variant='text'>
-          {cancelButton ? cancelButton : 'No'}
+          {cancelButton || 'No'}
         </Button>
       </DialogActions>
     </Dialog>

@@ -8,6 +8,7 @@ import { guestRoutes } from '~/router/constants/guestRoutes';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import { styles } from '~/containers/layout/sidebar/styles';
 import ImgIcon from '~/components/img-icon/ImgIcon';
+import { Link } from 'react-router-dom';
 
 type SidebarProps = {
   open: boolean
@@ -19,15 +20,20 @@ type SidebarProps = {
 type NavItem = {
   icon: JSX.Element
   text: string
-  path: string
+  route: string
 }
 
 const Sidebar: FC<SidebarProps> = ({ open, toggleDrawer, auth, handleCatalogBtnClick }) => {
   const renderNavList = (arr: NavItem[]) => (
     <List>
-      {arr.map(({ icon, text }, index) => (
+      {arr.map(({ icon, text, route }, index) => (
         <ListItem key={index} disablePadding>
-          <ListItemButton sx={commonStyles.alignItemsCenter} onClick={() => toggleDrawer(false)}>
+          <ListItemButton
+            sx={commonStyles.alignItemsCenter}
+            onClick={() => toggleDrawer(false)}
+            component={Link}
+            to={route}
+          >
             {cloneElement(icon, { sx: { paddingRight: '10px' } })}
             <ListItemText>{text}</ListItemText>
           </ListItemButton>

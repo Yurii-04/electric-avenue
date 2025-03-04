@@ -22,5 +22,9 @@ export const guestRoutes = {
     route: '/products',
     path: '/products',
     searchByCategory: (categoryId: number | string) => `/products/search-by-category/${categoryId}`,
+  },
+  error: {
+    route: 'error',
+    path: 'error',
   }
 };

@@ -18,7 +18,7 @@ export const SnackbarProvider = ({ children }: SnackbarProviderProps) => {
     setShow(true);
     setSeverity(options.severity);
     setMessage(options.message);
-    setDuration(options.duration || 4000);
+    setDuration(options.duration ?? 4000);
   }, []);
 
   const handleClose = () => {
