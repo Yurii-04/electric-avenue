@@ -22,6 +22,7 @@ import Sidebar from '~/containers/layout/sidebar/Sidebar';
 import { useModalContext } from '~/context/modal';
 import Categories from '~/containers/categories/Categories';
 import { Link } from 'react-router-dom';
+import LoginButton from '~/components/login-button/LoginButton';
 
 const Header = () => {
   const auth = false;
@@ -55,7 +56,7 @@ const Header = () => {
 
   const renderLastSection = () => {
     if (!auth) {
-      return <Button variant="contained" size="small">Login</Button>;
+      return <LoginButton size="small"/>;
     }
     return (
       <Box>
