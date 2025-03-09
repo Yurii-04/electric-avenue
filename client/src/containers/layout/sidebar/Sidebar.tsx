@@ -14,7 +14,7 @@ import LoginButton from '~/components/login-button/LoginButton';
 type SidebarProps = {
   open: boolean
   toggleDrawer: (newOpen: boolean) => void
-  auth: boolean
+  isAuth: boolean
   handleCatalogBtnClick: () => void
 }
 
@@ -24,7 +24,7 @@ type NavItem = {
   route: string
 }
 
-const Sidebar: FC<SidebarProps> = ({ open, toggleDrawer, auth, handleCatalogBtnClick }) => {
+const Sidebar: FC<SidebarProps> = ({ open, toggleDrawer, isAuth, handleCatalogBtnClick }) => {
   const renderNavList = (arr: NavItem[]) => (
     <List>
       {arr.map(({ icon, text, route }, index) => (
@@ -67,7 +67,7 @@ const Sidebar: FC<SidebarProps> = ({ open, toggleDrawer, auth, handleCatalogBtnC
                 Catalog
               </Button>
             </ListItem>
-            {auth ||
+            {isAuth ||
               <ListItem>
                 <LoginButton
                   onClick={() => toggleDrawer(false)}
@@ -81,7 +81,7 @@ const Sidebar: FC<SidebarProps> = ({ open, toggleDrawer, auth, handleCatalogBtnC
           <Divider />
         </Box>
         <Box sx={styles.secondSection}>
-          {renderNavList(Object.values(auth ? authRoutes.navBar : guestRoutes.navBar))}
+          {renderNavList(Object.values(isAuth ? authRoutes.navBar : guestRoutes.navBar))}
         </Box>
       </Box>
     </Drawer>

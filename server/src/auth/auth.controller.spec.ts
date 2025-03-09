@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthController } from '~/auth/auth.controller';
 import { AuthService } from '~/auth/auth.service';
-import { AuthDto } from '~/auth/dto';
+import { RegisterDto, LoginDto } from '~/auth/dto';
 import { Response } from 'express';
 
 describe('AuthController', () => {
@@ -32,7 +32,12 @@ describe('AuthController', () => {
 
   describe('signUp', () => {
     it('should sign up a user and return access token', async () => {
-      const dto: AuthDto = { email: 'test@example.com', password: 'password' };
+      const dto: RegisterDto = {
+        email: 'test@example.com',
+        password: 'password',
+        firstName: 'test',
+        lastName: 'test',
+      };
       const mockResponse = { accessToken: 'accessToken' };
       const res = { cookie: jest.fn() } as unknown as Response;
 
@@ -55,7 +60,7 @@ describe('AuthController', () => {
 
   describe('signIn', () => {
     it('should sign in a user and return access token', async () => {
-      const dto: AuthDto = { email: 'test@example.com', password: 'password' };
+      const dto: LoginDto = { email: 'test@example.com', password: 'password' };
       const mockResponse = { accessToken: 'accessToken' };
       const res = { cookie: jest.fn() } as unknown as Response;
 

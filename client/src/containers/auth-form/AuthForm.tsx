@@ -1,17 +1,32 @@
 import { Box } from '@mui/material';
-import { FC } from 'react';
+import { FC, useState } from 'react';
+import { styles } from '~/containers/auth-form/styles';
+import AuthSwitch from '~/components/auth-switch/AuthSwitch';
+import { FormMode } from '~/types';
+import LoginForm from '~/components/auth-form/LoginForm';
+import RegisterForm from '~/components/auth-form/RegisterForm';
 
 type AuthFormProps = {
   closeModal: () => void;
 }
 
-const AuthForm: FC<AuthFormProps> = ({closeModal}) => {
-  console.log(closeModal);
-  return (
-    <Box component='form'>
+const AuthFormContainer: FC<AuthFormProps> = ({ closeModal }) => {
+  const [mode, setMode] = useState<FormMode>('login');
 
+  return (
+    <Box sx={styles.root}>
+      <AuthSwitch
+        sx={styles.authSwitch}
+        mode={mode}
+        changeMode={setMode}
+      />
+      {mode === 'login' ? (
+        <LoginForm closeModal={closeModal} />
+      ) : (
+        <RegisterForm closeModal={closeModal}/>
+      )}
     </Box>
   );
 };
 
-export default AuthForm;
+export default AuthFormContainer;

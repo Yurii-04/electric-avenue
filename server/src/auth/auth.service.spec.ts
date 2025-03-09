@@ -74,15 +74,23 @@ describe('Auth service', () => {
         .mockResolvedValue({ id: '1' } as Users);
 
       await expect(
-        authService.signUp({ email: 'test@example.com', password: 'password' }),
+        authService.signUp({
+          email: 'test@example.com',
+          password: 'password',
+          firstName: 'test',
+          lastName: 'test',
+        }),
       ).rejects.toThrow(BadRequestException);
     });
 
     it('should create a new user and return tokens', async () => {
       jest.spyOn(userService, 'findByEmail').mockResolvedValue(null);
-      jest
-        .spyOn(userService, 'save')
-        .mockResolvedValue({ id: '1', email: 'test@example.com' } as Users);
+      jest.spyOn(userService, 'save').mockResolvedValue({
+        id: '1',
+        email: 'test@example.com',
+        firstName: 'test',
+        lastName: 'test',
+      } as Users);
       jest.spyOn(authService, 'getTokens').mockResolvedValue({
         accessToken: 'accessToken',
         refreshToken: 'refreshToken',
@@ -92,6 +100,8 @@ describe('Auth service', () => {
       const tokens = await authService.signUp({
         email: 'test@example.com',
         password: 'password',
+        firstName: 'test',
+        lastName: 'test',
       });
 
       expect(tokens).toEqual({
@@ -101,6 +111,8 @@ describe('Auth service', () => {
       expect(userService.save).toHaveBeenCalledWith({
         email: 'test@example.com',
         password: 'password',
+        firstName: 'test',
+        lastName: 'test',
       });
     });
   });

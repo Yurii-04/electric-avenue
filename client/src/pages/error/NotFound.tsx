@@ -4,17 +4,22 @@ import Typography from '@mui/material/Typography';
 import { Link } from 'react-router-dom';
 import { guestRoutes } from '~/router/constants/guestRoutes';
 import manImg from '~/assets/img/error-page/404-man.svg';
+import Container from '~/components/container/Container';
+import TitleWithDescription from '~/components/title-with-description/TitleWithDescription';
 
 const NotFound = () => {
   return (
-    <Box sx={styles.root}>
+    <Container sx={styles.root}>
       <Box sx={styles.box}>
         <Box sx={styles.textWrapper}>
-          <Typography variant="h4">Page Not Found</Typography>
           <Typography variant="subtitle2">
-            We are sorry, but the page you were trying to find does not exist. We suggest you go to the home
-            page.
+
           </Typography>
+          <TitleWithDescription
+            style={styles.titleWithDescription}
+            title="Page Not Found"
+            description=" We are sorry, but the page you were trying to find does not exist. We suggest you go to the home page."
+          />
         </Box>
         <Button
           size="large"
@@ -31,7 +36,7 @@ const NotFound = () => {
         src={manImg}
         sx={styles.manImg}
       />
-    </Box>
+    </Container>
   );
 };
 

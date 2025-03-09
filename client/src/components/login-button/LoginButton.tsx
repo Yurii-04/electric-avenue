@@ -2,7 +2,8 @@ import { FC } from 'react';
 import { Button } from '@mui/material';
 import AccountCircleRoundedIcon from '@mui/icons-material/AccountCircleRounded';
 import { useModalContext } from '~/context/modal';
-import AuthForm from '~/containers/auth-form/AuthForm';
+import AuthFormContainer from '~/containers/auth-form/AuthForm';
+import { styles } from '~/components/login-button/styles';
 
 type LoginButtonProps = {
   onClick?: () => void;
@@ -16,7 +17,8 @@ const LoginButton: FC<LoginButtonProps> = ({ onClick, fullWidth = false, startIc
   const { openModal, closeModal } = useModalContext();
   const handleClick = () => {
     openModal({
-        component: <AuthForm closeModal={closeModal} />,
+        component: <AuthFormContainer closeModal={closeModal} />,
+        paperProps: { sx: styles.paperProps },
       },
     );
     onClick?.();

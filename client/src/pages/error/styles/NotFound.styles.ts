@@ -5,7 +5,7 @@ export const styles = {
     alignItems: 'center',
     flexDirection: { xs: 'column', md: 'row' },
     rowGap: '25px',
-    margin: { xs: '5em 16px 0', md: '0 60px' },
+    margin: '2em auto',
     flex: 1,
   },
   box: {
@@ -14,6 +14,27 @@ export const styles = {
     alignItems: { xs: 'center', md: 'flex-start' },
     mx: 'auto',
     maxWidth: '420px',
+  },
+  titleWithDescription: {
+    wrapper: {
+      textAlign: {
+        md: 'left',
+        xs: 'center'
+      },
+      mb: '32px'
+    },
+    title: {
+      typography: {
+        sm: 'h3',
+        xs: 'h4'
+      }
+    },
+    description: {
+      typography: {
+        sm: 'body1',
+        xs: 'body2'
+      }
+    }
   },
   textWrapper: {
     textAlign: { xs: 'center', md: 'left' },

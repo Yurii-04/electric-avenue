@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '~/prisma/prisma.service';
 import { UserService } from '~/user/user.service';
-import { AuthDto } from '~/auth/dto';
+import { RegisterDto, LoginDto } from '~/auth/dto';
 import { JwtPayload, Tokens } from '~/auth/types';
 import { JwtService } from '@nestjs/jwt';
 import { HashingService } from '~/hashing/hashing.service';
@@ -26,7 +26,7 @@ export class AuthService {
     private readonly config: ConfigService,
   ) {}
 
-  async signUp(dto: AuthDto): Promise<Tokens> {
+  async signUp(dto: RegisterDto): Promise<Tokens> {
     const oldUser = await this.userService.findByEmail(dto.email);
     if (oldUser) {
       throw new BadRequestException('User already exist');
@@ -39,7 +39,7 @@ export class AuthService {
     return tokens;
   }
 
-  async signIn(dto: AuthDto): Promise<Tokens> {
+  async signIn(dto: LoginDto): Promise<Tokens> {
     const user = await this.userService.findByEmail(dto.email);
     if (!user) {
       throw new ForbiddenException('Wrong email or password');
@@ -113,7 +113,8 @@ export class AuthService {
     const [at, rt] = await Promise.all([
       this.jwtService.signAsync(jwtPayload, {
         secret: this.config.get<string>('AT_SECRET'),
-        expiresIn: '15m',
+        // expiresIn: '15m',
+        expiresIn: '20s',
       }),
       this.jwtService.signAsync(jwtPayload, {
         secret: this.config.get<string>('RT_SECRET'),

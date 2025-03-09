@@ -60,10 +60,4 @@ describe('UserController', () => {
     expect(result).toEqual(mockUsers);
     expect(mockUserService.findAll).toHaveBeenCalledTimes(1);
   });
-
-  it('should return a user by ID', async () => {
-    const result = await userController.getById('1');
-    expect(result).toEqual(mockUsers[0]);
-    expect(mockUserService.findById).toHaveBeenCalledWith('1');
-  });
 });

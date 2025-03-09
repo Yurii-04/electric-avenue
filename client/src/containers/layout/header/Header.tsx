@@ -10,6 +10,8 @@ import {
   Toolbar,
   useMediaQuery,
   useTheme,
+  Divider,
+  ListItemText,
 } from '@mui/material';
 import Container from '~/components/container/Container';
 import ImgIcon from '~/components/img-icon/ImgIcon';
@@ -23,9 +25,13 @@ import { useModalContext } from '~/context/modal';
 import Categories from '~/containers/categories/Categories';
 import { Link } from 'react-router-dom';
 import LoginButton from '~/components/login-button/LoginButton';
+import { useAppSelector } from '~/redux/store';
+import { selectIsAuthenticated } from '~/redux/features/userSlice';
+import { useLogoutUserMutation } from '~/redux/api/authApi';
 
 const Header = () => {
-  const auth = false;
+  const [logoutUser] = useLogoutUserMutation();
+  const isAuth = useAppSelector(selectIsAuthenticated);
   const theme = useTheme();
   const isTablet = useMediaQuery(theme.breakpoints.down('md'));
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
@@ -55,8 +61,8 @@ const Header = () => {
   };
 
   const renderLastSection = () => {
-    if (!auth) {
-      return <LoginButton size="small"/>;
+    if (!isAuth) {
+      return <LoginButton size="small" />;
     }
     return (
       <Box>
@@ -78,6 +84,13 @@ const Header = () => {
           </MenuItem>
           <MenuItem onClick={handleMenuClose}>
             <Link to={addProduct.route}>{addProduct.text}</Link>
+          </MenuItem>
+          <Divider />
+          <MenuItem onClick={() => {
+            handleMenuClose();
+            logoutUser();
+          }}>
+            <ListItemText primary="Logout" />
           </MenuItem>
         </CustomMenu>
       </Box>
@@ -108,7 +121,7 @@ const Header = () => {
                 <Sidebar
                   open={drawerOpen}
                   toggleDrawer={toggleDrawer}
-                  auth={auth}
+                  isAuth={isAuth}
                   handleCatalogBtnClick={handleCatalogBtnClick}
                 />
               </>

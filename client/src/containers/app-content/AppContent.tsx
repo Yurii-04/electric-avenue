@@ -1,12 +1,12 @@
 import Box from '@mui/material/Box';
 import Header from '~/containers/layout/header/Header';
-import { Outlet } from 'react-router-dom';
+import AppMain from '~/containers/app-main/AppMain';
 
 const AppContent = () => {
   return (
     <Box>
       <Header />
-      <Outlet />
+      <AppMain />
     </Box>
   );
 };

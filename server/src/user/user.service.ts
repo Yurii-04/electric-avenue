@@ -2,7 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { Users } from '@prisma/client';
 import { PrismaService } from '~/prisma/prisma.service';
 import { HashingService } from '~/hashing/hashing.service';
-import { AuthDto } from '~/auth/dto';
+import { RegisterDto } from '~/auth/dto';
+import { UserWithExcludeFields } from '~/user/types';
 
 @Injectable()
 export class UserService {
@@ -11,7 +12,7 @@ export class UserService {
     private readonly hashingService: HashingService,
   ) {}
 
-  async save(dto: AuthDto): Promise<Users> {
+  async save(dto: RegisterDto): Promise<Users> {
     const hashedPassword = await this.hashingService.hash(dto.password, 10);
     return this.prisma.users.create({
       data: {
@@ -39,7 +40,24 @@ export class UserService {
     });
   }
 
-  findAll(): Promise<Users[]> {
-    return this.prisma.users.findMany();
+  findAll(): Promise<UserWithExcludeFields[]> {
+    return this.prisma.users.findMany({
+      omit: {
+        hashedPassword: true,
+        hashedRt: true,
+      },
+    });
+  }
+
+  getMe(id: string): Promise<UserWithExcludeFields> {
+    return this.prisma.users.findUnique({
+      omit: {
+        hashedPassword: true,
+        hashedRt: true,
+      },
+      where: {
+        id,
+      },
+    });
   }
 }

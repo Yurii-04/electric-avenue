@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { UserService } from '~/user/user.service';
 import { PrismaService } from '~/prisma/prisma.service';
 import { HashingService } from '~/hashing/hashing.service';
-import { AuthDto } from '~/auth/dto';
+import { RegisterDto } from '~/auth/dto';
 
 const mockUsers = [
   {
@@ -89,7 +89,7 @@ describe('UserService', () => {
   });
 
   it('should save a new user', async () => {
-    const newUser: AuthDto = {
+    const newUser: RegisterDto = {
       email: 'test3@example.com',
       password: 'password3',
       firstName: 'Test',

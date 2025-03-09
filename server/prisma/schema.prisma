@@ -9,8 +9,8 @@ datasource db {
 
 model Users {
   id             String   @id @default(cuid())
-  firstName      String?  @map("first_name")
-  lastName       String?  @map("last_name")
+  firstName      String   @map("first_name")
+  lastName       String   @map("last_name")
   email          String   @unique
   hashedPassword String   @map("hashed_password")
   photo          String?

@@ -1,6 +1,7 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Controller, Get, Req } from '@nestjs/common';
 import { UserService } from '~/user/user.service';
 import { Public } from '~/common/decorators';
+import { RequestWithUser } from '~/user/types';
 
 @Controller('users')
 export class UserController {
@@ -12,8 +13,8 @@ export class UserController {
     return this.userService.findAll();
   }
 
-  @Get(':id')
-  async getById(@Param('id') id: string) {
-    return this.userService.findById(id);
+  @Get('/me')
+  async getMe(@Req() req: RequestWithUser) {
+    return this.userService.getMe(req.user.sub);
   }
 }

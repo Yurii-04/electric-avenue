@@ -1,6 +1,6 @@
 export const styles = {
   box: {
-    margin: { xs: '0 auto', sm: 0 },
+    margin: 0,
     display: { xl: 'flex' },
     flexDirection: 'column',
     justifyContent: 'center',
