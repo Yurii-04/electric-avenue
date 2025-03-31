@@ -19,11 +19,12 @@ export const userSlice = createSlice({
     },
     setUser: (state, action: PayloadAction<User | null>) => {
       state.user = action.payload;
-    }
+    },
   },
 });
 
 export const { logout, setUser } = userSlice.actions;
 export default userSlice.reducer;
+
 export const selectUser = (state: RootState) => state.userState.user;
 export const selectIsAuthenticated = (state: RootState) => !!state.userState.user;

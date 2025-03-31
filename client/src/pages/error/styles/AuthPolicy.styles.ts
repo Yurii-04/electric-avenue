@@ -1,7 +1,6 @@
 export const styles = {
   container: {
     display: 'flex',
-    mt: '5em',
     flexDirection: {
       md: 'row',
       xs: 'column'

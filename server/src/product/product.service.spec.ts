@@ -6,9 +6,11 @@ import {
   NotFoundException,
   ForbiddenException,
   BadRequestException,
+  InternalServerErrorException,
 } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
 import { PageOptionsDto } from '~/common/dtos';
+import { CreateProductDto } from '~/product/dto';
 
 const mockPrismaService = {
   products: {
@@ -18,6 +20,7 @@ const mockPrismaService = {
     findMany: jest.fn(),
     delete: jest.fn(),
     count: jest.fn(),
+    $transaction: jest.fn(),
   },
   categories: {
     findUnique: jest.fn(),
@@ -25,10 +28,16 @@ const mockPrismaService = {
   attributes: {
     findMany: jest.fn(),
   },
+  productImages: {
+    createMany: jest.fn(),
+    deleteMany: jest.fn(),
+  },
+  $transaction: jest.fn(),
 };
 
 const mockCloudinaryService = {
   uploadImages: jest.fn(),
+  deleteImages: jest.fn(),
 };
 
 describe('ProductService', () => {
@@ -55,365 +64,407 @@ describe('ProductService', () => {
   });
 
   describe('create', () => {
-    it('should create a product and return it', async () => {
-      const dto = {
+    it('should create a product and return it with attributes and images', async () => {
+      const dto: CreateProductDto = {
         title: 'Test Product',
         description: 'Test description',
-        categoryId: 1,
+        categoryId: 'cat123',
         price: '100',
-        attributes: [{ attributeId: 1, value: 'black' }],
+        attributes: [{ key: 'Color', value: 'Black' }],
       };
       const userId = 'user123';
       const files = [{ filename: 'image1.jpg' }] as Express.Multer.File[];
 
-      prisma.categories.findUnique.mockResolvedValue({ id: 'cat123' });
-      prisma.attributes.findMany.mockResolvedValue([{ id: 1, name: 'Color' }]); // Атрибути знайдені
-      cloudinary.uploadImages.mockResolvedValue([{ url: 'http://image.url' }]);
-      prisma.products.create.mockResolvedValue({ id: 'prod123' });
-      prisma.products.update.mockResolvedValue({
+      const mockCategory = { id: 'cat123' };
+      const mockAttributes = [
+        {
+          id: 'attr1',
+          name: 'Color',
+          attributeOptions: [
+            { optionValueId: 'opt1', optionValue: { value: 'Black' } },
+          ],
+        },
+      ];
+      const mockUploadedImages = [
+        { url: 'http://image.url', publicId: 'img1' },
+      ];
+      const mockProduct = {
         id: 'prod123',
         title: 'Test Product',
-      });
+        description: 'Test description',
+        price: '100',
+        category: { name: 'Electronics' },
+        productImages: [{ url: 'http://image.url', publicId: 'img1' }],
+        productAttributes: [
+          { attribute: { name: 'Color' }, optionValue: { value: 'Black' } },
+        ],
+      };
+
+      prisma.categories.findUnique.mockResolvedValue(mockCategory);
+      prisma.attributes.findMany.mockResolvedValue(mockAttributes);
+      cloudinary.uploadImages.mockResolvedValue(mockUploadedImages);
+      prisma.$transaction.mockImplementation(async (callback) =>
+        callback(prisma),
+      );
+      prisma.products.create.mockResolvedValue({ id: 'prod123' });
+      prisma.productImages.createMany.mockResolvedValue({ count: 1 });
+      prisma.products.findUnique.mockResolvedValue(mockProduct);
 
       const result = await service.create(dto, userId, files);
 
       expect(prisma.categories.findUnique).toHaveBeenCalledWith({
-        where: { id: dto.categoryId },
+        where: { id: 'cat123' },
       });
       expect(prisma.attributes.findMany).toHaveBeenCalledWith({
-        where: { id: { in: [1] } },
+        where: { categoryId: 'cat123' },
+        include: { attributeOptions: { include: { optionValue: true } } },
       });
       expect(cloudinary.uploadImages).toHaveBeenCalledWith(files);
-      expect(prisma.products.create).toHaveBeenCalledWith(
-        expect.objectContaining({
-          data: expect.objectContaining({
-            seller: { connect: { id: userId } },
-          }),
-        }),
-      );
-      expect(result).toEqual({ id: 'prod123', title: 'Test Product' });
+      expect(prisma.products.create).toHaveBeenCalledWith({
+        data: {
+          title: 'Test Product',
+          description: 'Test description',
+          price: '100',
+          seller: { connect: { id: 'user123' } },
+          category: { connect: { id: 'cat123' } },
+          productAttributes: {
+            create: [{ attributeId: 'attr1', optionValueId: 'opt1' }],
+          },
+        },
+      });
+      expect(result).toEqual({
+        id: 'prod123',
+        title: 'Test Product',
+        description: 'Test description',
+        price: '100',
+        category: 'Electronics',
+        productImages: [{ url: 'http://image.url', publicId: 'img1' }],
+        productAttributes: [{ key: 'Color', value: 'Black' }],
+      });
     });
 
     it('should throw NotFoundException if category does not exist', async () => {
-      const dto = {
+      const dto: CreateProductDto = {
         title: 'Test Product',
-        description: 'Test description',
-        categoryId: 1,
+        categoryId: 'cat123',
         price: '100',
-        attributes: [{ attributeId: 1, value: 'black' }],
+        description: 'test description',
+        attributes: [],
       };
-      const userId = 'user123';
-      const files = [] as Express.Multer.File[];
-
       prisma.categories.findUnique.mockResolvedValue(null);
 
-      await expect(service.create(dto, userId, files)).rejects.toThrow(
+      await expect(service.create(dto, 'user123', [])).rejects.toThrow(
         NotFoundException,
       );
     });
 
-    it('should throw NotFoundException if one or more attributes do not exist', async () => {
-      const dto = {
+    it('should throw InternalServerErrorException and cleanup images on failure', async () => {
+      const dto: CreateProductDto = {
         title: 'Test Product',
-        description: 'Test description',
-        categoryId: 1,
+        categoryId: 'cat123',
+        description: 'test description',
         price: '100',
-        attributes: [{ attributeId: 1, value: 'black' }],
+        attributes: [],
       };
-      const userId = 'user123';
-      const files = [] as Express.Multer.File[];
-
-      prisma.categories.findUnique.mockResolvedValue({ id: 'cat123' });
-      prisma.attributes.findMany.mockResolvedValue([]); // Атрибути не знайдені
-
-      await expect(service.create(dto, userId, files)).rejects.toThrow(
-        NotFoundException,
-      );
-    });
-
-    it('should throw BadRequestException if file upload fails', async () => {
-      const dto = {
-        title: 'Test Product',
-        description: 'Test description',
-        categoryId: 1,
-        price: '100',
-        attributes: [{ attributeId: 1, value: 'black' }],
-      };
-      const userId = 'user123';
       const files = [{ filename: 'image1.jpg' }] as Express.Multer.File[];
+      const mockUploadedImages = [
+        { url: 'http://image.url', publicId: 'img1' },
+      ];
 
       prisma.categories.findUnique.mockResolvedValue({ id: 'cat123' });
-      prisma.attributes.findMany.mockResolvedValue([{ id: 1, name: 'Color' }]);
-      cloudinary.uploadImages.mockRejectedValue(new Error('Invalid file type'));
+      cloudinary.uploadImages.mockResolvedValue(mockUploadedImages);
+      prisma.$transaction.mockRejectedValue(new Error('Transaction failed'));
+      cloudinary.deleteImages.mockResolvedValue({});
 
-      await expect(service.create(dto, userId, files)).rejects.toThrow(
-        BadRequestException,
+      await expect(service.create(dto, 'user123', files)).rejects.toThrow(
+        InternalServerErrorException,
       );
+      expect(cloudinary.deleteImages).toHaveBeenCalledWith(['img1']);
     });
   });
 
   describe('getById', () => {
     it('should return a product with attributes', async () => {
       const productId = 'prod123';
-      prisma.products.findUnique.mockResolvedValue({
-        id: productId,
+      const mockProduct = {
+        id: 'prod123',
         title: 'Test Product',
-        attributeValues: [
-          { value: 'Value1', attribute: { name: 'Key1' } },
-          { value: 'Value2', attribute: { name: 'Key2' } },
+        description: 'Test desc',
+        price: '100',
+        category: { name: 'Electronics' },
+        productImages: [{ url: 'http://image.url', publicId: 'img1' }],
+        productAttributes: [
+          { attribute: { name: 'Color' }, optionValue: { value: 'Black' } },
         ],
-      });
+      };
+
+      prisma.products.findUnique.mockResolvedValue(mockProduct);
 
       const result = await service.getById(productId);
 
-      expect(prisma.products.findUnique).toHaveBeenCalledWith(
-        expect.objectContaining({ where: { id: productId } }),
-      );
-      expect(result).toEqual(
-        expect.objectContaining({
-          id: productId,
-          attributes: [
-            { key: 'Key1', value: 'Value1' },
-            { key: 'Key2', value: 'Value2' },
-          ],
-        }),
-      );
+      expect(prisma.products.findUnique).toHaveBeenCalledWith({
+        where: { id: productId },
+        omit: { categoryId: true },
+        include: expect.any(Object),
+      });
+      expect(result).toEqual({
+        id: 'prod123',
+        title: 'Test Product',
+        description: 'Test desc',
+        price: '100',
+        category: 'Electronics',
+        productImages: [{ url: 'http://image.url', publicId: 'img1' }],
+        productAttributes: [{ key: 'Color', value: 'Black' }],
+      });
     });
 
     it('should throw NotFoundException if product does not exist', async () => {
-      const productId = 'invalid';
       prisma.products.findUnique.mockResolvedValue(null);
 
-      await expect(service.getById(productId)).rejects.toThrow(
+      await expect(service.getById('invalid')).rejects.toThrow(
         NotFoundException,
       );
     });
   });
 
+  describe('getAll', () => {
+    it('should return paginated products', async () => {
+      const pageOptionsDto = plainToInstance(PageOptionsDto, {
+        page: 1,
+        take: 10,
+        orderBy: 'title',
+        order: 'asc',
+      });
+      const mockProducts = [
+        {
+          id: 'prod1',
+          title: 'Product 1',
+          price: '100',
+          productImages: [{ url: 'http://image1.url' }],
+        },
+      ];
+      prisma.products.findMany.mockResolvedValue(mockProducts);
+      prisma.products.count.mockResolvedValue(1);
+
+      const result = await service.getAll(pageOptionsDto);
+
+      expect(prisma.products.findMany).toHaveBeenCalledWith({
+        select: expect.any(Object),
+        where: {},
+        skip: 0,
+        take: 10,
+        orderBy: { title: 'asc' },
+      });
+      expect(result.data).toEqual(mockProducts);
+      expect(result.meta.itemCount).toBe(1);
+    });
+  });
+
+  describe('searchProducts', () => {
+    it('should return paginated products matching search query', async () => {
+      const query = 'test';
+      const pageOptionsDto = plainToInstance(PageOptionsDto, {
+        page: 1,
+        take: 10,
+        orderBy: 'title',
+        order: 'asc',
+      });
+      const mockProducts = [
+        {
+          id: 'prod1',
+          title: 'Test Product',
+          price: '100',
+          productImages: [{ url: 'http://image1.url' }],
+        },
+      ];
+      prisma.products.findMany.mockResolvedValue(mockProducts);
+      prisma.products.count.mockResolvedValue(1);
+
+      const result = await service.searchProducts(query, pageOptionsDto);
+
+      expect(prisma.products.findMany).toHaveBeenCalledWith({
+        select: expect.any(Object),
+        where: {
+          OR: [
+            { title: { contains: query, mode: 'insensitive' } },
+            { description: { contains: query, mode: 'insensitive' } },
+          ],
+        },
+        skip: 0,
+        take: 10,
+        orderBy: { title: 'asc' },
+      });
+      expect(result.data).toEqual(mockProducts);
+      expect(result.meta.itemCount).toBe(1);
+    });
+  });
+
+  describe('getByCategory', () => {
+    it('should return paginated products by category', async () => {
+      const categoryId = 'cat123';
+      const pageOptionsDto = plainToInstance(PageOptionsDto, {
+        page: 1,
+        take: 10,
+        orderBy: 'title',
+        order: 'asc',
+      });
+      const mockProducts = [
+        {
+          id: 'prod1',
+          title: 'Product 1',
+          price: '100',
+          productImages: [{ url: 'http://image1.url' }],
+        },
+      ];
+      prisma.products.findMany.mockResolvedValue(mockProducts);
+      prisma.products.count.mockResolvedValue(1);
+
+      const result = await service.getByCategory(categoryId, pageOptionsDto);
+
+      expect(prisma.products.findMany).toHaveBeenCalledWith({
+        select: expect.any(Object),
+        where: { category: { id: categoryId } },
+        skip: 0,
+        take: 10,
+        orderBy: { title: 'asc' },
+      });
+      expect(result.data).toEqual(mockProducts);
+      expect(result.meta.itemCount).toBe(1);
+    });
+  });
+
   describe('deleteProduct', () => {
-    it('should delete a product and return it', async () => {
+    it('should delete a product and its images', async () => {
       const productId = 'prod123';
       const userId = 'user123';
-
-      prisma.products.findUnique.mockResolvedValue({
+      const mockProduct = {
         id: productId,
         sellerId: userId,
-      });
-      prisma.products.delete.mockResolvedValue({
-        id: productId,
-        title: 'Deleted Product',
-      });
+        productImages: [{ url: 'http://image.url', publicId: 'img1' }],
+      };
+
+      prisma.products.findUnique.mockResolvedValue(mockProduct);
+      prisma.products.delete.mockResolvedValue(mockProduct);
+      cloudinary.deleteImages.mockResolvedValue({});
 
       const result = await service.deleteProduct(productId, userId);
 
       expect(prisma.products.findUnique).toHaveBeenCalledWith({
         where: { id: productId },
+        include: { productImages: true },
       });
       expect(prisma.products.delete).toHaveBeenCalledWith({
-        select: {
-          description: true,
-          id: true,
-          images: true,
-          price: true,
-          title: true,
-        },
-        where: {
-          id: productId,
-        },
+        where: { id: productId },
       });
-
-      expect(result).toEqual({ id: productId, title: 'Deleted Product' });
+      expect(cloudinary.deleteImages).toHaveBeenCalledWith(['img1']);
+      expect(result).toEqual({
+        success: true,
+        message: 'Product deleted successfully',
+      });
     });
 
     it('should throw ForbiddenException if user is not the seller', async () => {
-      const productId = 'prod123';
-      const userId = 'user456';
-
       prisma.products.findUnique.mockResolvedValue({
-        id: productId,
-        sellerId: 'user123',
+        id: 'prod123',
+        sellerId: 'otherUser',
+        productImages: [],
       });
 
-      await expect(service.deleteProduct(productId, userId)).rejects.toThrow(
+      await expect(service.deleteProduct('prod123', 'user123')).rejects.toThrow(
         ForbiddenException,
       );
     });
   });
 
   describe('updateProduct', () => {
-    it('should update a product and return it', async () => {
+    it('should update a product with new images and attributes', async () => {
       const dto = {
         title: 'Updated Product',
-        description: 'Updated description',
-        price: '150',
+        categoryId: 'cat123',
+        attributes: [{ key: 'Color', value: 'Blue' }],
+        imagesToDelete: ['img1'],
       };
       const productId = 'prod123';
       const userId = 'user123';
-      const files = [
-        { filename: 'updated_image.jpg' },
-      ] as Express.Multer.File[];
-
-      prisma.products.findUnique.mockResolvedValue({
+      const files = [{ filename: 'new_image.jpg' }] as Express.Multer.File[];
+      const mockProduct = {
         id: productId,
         sellerId: userId,
-      });
-      cloudinary.uploadImages.mockResolvedValue([
-        { url: 'http://updated.image.url' },
-      ]);
-      prisma.products.update.mockResolvedValue({
+        categoryId: 'cat123',
+        productImages: [{ url: 'http://old.url', publicId: 'img1' }],
+      };
+      const mockAttributes = [
+        {
+          id: 'attr1',
+          name: 'Color',
+          attributeOptions: [
+            { optionValueId: 'opt1', optionValue: { value: 'Blue' } },
+          ],
+        },
+      ];
+      const mockUploadedImages = [{ url: 'http://new.url', publicId: 'img2' }];
+      const mockUpdatedProduct = {
         id: productId,
         title: 'Updated Product',
-        price: '150',
-      });
+        category: { name: 'Electronics' },
+        productImages: [{ url: 'http://new.url', publicId: 'img2' }],
+        productAttributes: [
+          { attribute: { name: 'Color' }, optionValue: { value: 'Blue' } },
+        ],
+      };
+
+      prisma.products.findUnique.mockResolvedValue(mockProduct);
+      prisma.categories.findUnique.mockResolvedValue({ id: 'cat123' });
+      prisma.attributes.findMany.mockResolvedValue(mockAttributes);
+      cloudinary.uploadImages.mockResolvedValue(mockUploadedImages);
+      prisma.$transaction.mockImplementation(async (callback) =>
+        callback(prisma),
+      );
+      prisma.productImages.deleteMany.mockResolvedValue({ count: 1 });
+      prisma.productImages.createMany.mockResolvedValue({ count: 1 });
+      prisma.products.update.mockResolvedValue(mockUpdatedProduct);
+      cloudinary.deleteImages.mockResolvedValue({});
 
       const result = await service.updateProduct(dto, productId, userId, files);
 
-      expect(prisma.products.findUnique).toHaveBeenCalledWith({
+      expect(prisma.products.update).toHaveBeenCalledWith({
         where: { id: productId },
-      });
-      expect(cloudinary.uploadImages).toHaveBeenCalledWith(files);
-      expect(prisma.products.update).toHaveBeenCalledWith(
-        expect.objectContaining({
-          where: { id: productId },
-          data: expect.objectContaining({
-            title: 'Updated Product',
-            price: '150',
-          }),
+        data: expect.objectContaining({
+          title: 'Updated Product',
+          categoryId: 'cat123',
+          productAttributes: {
+            deleteMany: {},
+            createMany: {
+              data: [{ attributeId: 'attr1', optionValueId: 'opt1' }],
+            },
+          },
         }),
-      );
+        include: expect.any(Object),
+      });
+      expect(cloudinary.deleteImages).toHaveBeenCalledWith(['img1']);
       expect(result).toEqual({
         id: productId,
         title: 'Updated Product',
-        price: '150',
+        category: 'Electronics',
+        productImages: [{ url: 'http://new.url', publicId: 'img2' }],
+        productAttributes: [{ key: 'Color', value: 'Blue' }],
       });
     });
 
-    it('should throw ForbiddenException if user is not the seller', async () => {
-      const dto = {
-        title: 'Updated Product',
-        description: 'Updated description',
-        price: '150',
-      };
+    it('should throw BadRequestException if category changes without attributes', async () => {
+      const dto = { categoryId: 'c24' };
       const productId = 'prod123';
-      const userId = 'user456';
-      const files = [
-        { filename: 'updated_image.jpg' },
-      ] as Express.Multer.File[];
-
+      const userId = 'user123';
       prisma.products.findUnique.mockResolvedValue({
         id: productId,
-        sellerId: 'user123',
+        sellerId: userId,
+        categoryId: 'oldCat',
+        productImages: [],
       });
 
       await expect(
-        service.updateProduct(dto, productId, userId, files),
-      ).rejects.toThrow(ForbiddenException);
-    });
-
-    it('should throw NotFoundException if product does not exist', async () => {
-      const dto = {
-        title: 'Updated Product',
-        description: 'Updated description',
-        price: '150',
-      };
-      const productId = 'invalid';
-      const userId = 'user123';
-      const files = [
-        { filename: 'updated_image.jpg' },
-      ] as Express.Multer.File[];
-
-      prisma.products.findUnique.mockResolvedValue(null);
-
-      await expect(
-        service.updateProduct(dto, productId, userId, files),
-      ).rejects.toThrow(NotFoundException);
-    });
-  });
-
-  describe('getAll', () => {
-    it('should return all products with pagination', async () => {
-      const pageOptions = {
-        page: 2,
-        take: 1,
-        orderBy: 'createdAt',
-        order: 'desc',
-      };
-      const pageOptionsDto = plainToInstance(PageOptionsDto, pageOptions);
-      const mockProducts = [
-        {
-          id: 'prod1',
-          title: 'Product 1',
-          price: '100',
-          images: ['http://image1.url'],
-        },
-        {
-          id: 'prod2',
-          title: 'Product 2',
-          price: '200',
-          images: ['http://image2.url'],
-        },
-      ];
-      const itemCount = 2;
-
-      prisma.products.findMany.mockResolvedValue(mockProducts[1]);
-      prisma.products.count.mockResolvedValue(itemCount);
-
-      const result = await service.getAll(pageOptionsDto);
-      expect(prisma.products.findMany).toHaveBeenCalledWith(
-        expect.objectContaining({
-          skip: pageOptionsDto.skip,
-          take: pageOptionsDto.take,
-          orderBy: { [pageOptions.orderBy]: pageOptionsDto.order },
-        }),
-      );
-      expect(result.data).toEqual(mockProducts[1]);
-      expect(result.meta.itemCount).toBe(itemCount);
-    });
-  });
-
-  describe('getByCategory', () => {
-    it('should return products by category with pagination', async () => {
-      const categoryId = 1;
-      const pageOptions = {
-        page: 2,
-        take: 1,
-        orderBy: 'createdAt',
-        order: 'desc',
-      };
-      const pageOptionsDto = plainToInstance(PageOptionsDto, pageOptions);
-      const mockProducts = [
-        {
-          id: 'prod1',
-          title: 'Product 1',
-          price: '100',
-          images: ['http://image1.url'],
-        },
-        {
-          id: 'prod2',
-          title: 'Product 2',
-          price: '200',
-          images: ['http://image2.url'],
-        },
-      ];
-      const itemCount = 2;
-
-      prisma.products.findMany.mockResolvedValue(mockProducts[1]);
-      prisma.products.count.mockResolvedValue(itemCount);
-
-      const result = await service.getByCategory(categoryId, pageOptionsDto);
-
-      expect(prisma.products.findMany).toHaveBeenCalledWith(
-        expect.objectContaining({
-          where: {
-            category: { id: categoryId },
-          },
-          skip: pageOptionsDto.skip,
-          take: pageOptionsDto.take,
-          orderBy: { [pageOptions.orderBy]: pageOptionsDto.order },
-        }),
-      );
-      expect(result.data).toEqual(mockProducts[1]);
-      expect(result.meta.itemCount).toBe(itemCount);
+        service.updateProduct(dto, productId, userId, []),
+      ).rejects.toThrow(BadRequestException);
     });
   });
 });

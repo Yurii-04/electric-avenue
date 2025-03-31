@@ -28,28 +28,40 @@ model Products {
   sellerId    String   @map("seller_id")
   title       String
   description String
-  categoryId  Int      @map("category_id")
-  images      String[]
-  price       Decimal
+  categoryId  String   @map("category_id")
+  price       Decimal  @db.Decimal(10, 2)
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
 
-  attributeValues AttributeValues[]
-
-  seller   Users      @relation(fields: [sellerId], references: [id])
-  category Categories @relation(fields: [categoryId], references: [id])
+  seller            Users               @relation(fields: [sellerId], references: [id])
+  category          Categories          @relation(fields: [categoryId], references: [id])
+  productAttributes ProductAttributes[]
+  productImages     ProductImages[]
 
   @@map("products")
 }
 
+model ProductImages {
+  id        String   @id @default(cuid())
+  productId String   @map("product_id")
+  url       String
+  publicId  String   @unique @map("public_id")
+  createAt  DateTime @default(now()) @map("created_at")
+
+  product Products @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@map("product_images")
+}
+
 model Categories {
-  id       Int      @id @default(autoincrement())
+  id       String   @id @default(cuid())
   name     String
-  parentId Int?     @map("parent_id")
+  parentId String?  @map("parent_id")
   icon     String?
   isGroup  Boolean? @default(false) @map("is_group")
 
-  products Products[]
+  products   Products[]
+  attributes Attributes[]
 
   @@index([parentId])
   @@map("categories")
@@ -57,24 +69,50 @@ model Categories {
 
 // EAV
 model Attributes {
-  id          Int     @id @default(autoincrement())
-  name        String  @unique()
+  id          String  @id @default(cuid())
+  name        String
   description String?
+  categoryId  String  @map("category_id")
 
-  attributeValues AttributeValues[]
+  attributeOptions  AttributeOptions[]
+  category          Categories          @relation(fields: [categoryId], references: [id])
+  ProductAttributes ProductAttributes[]
 
   @@map("attributes")
 }
 
-model AttributeValues {
-  id          Int    @id @default(autoincrement())
-  productId   String @map("product_id")
-  attributeId Int    @map("attribute_id")
+model OptionValues {
+  id          String  @id @default(cuid())
   value       String
+  description String?
 
-  product   Products   @relation(fields: [productId], references: [id], onDelete: Cascade)
-  attribute Attributes @relation(fields: [attributeId], references: [id])
+  attributeOptions  AttributeOptions[]
+  ProductAttributes ProductAttributes[]
 
-  @@index([productId, attributeId])
-  @@map("attribute_values")
+  @@map("option_values")
+}
+
+model AttributeOptions {
+  id            String @id @default(cuid())
+  attributeId   String @map("attribute_id")
+  optionValueId String @map("option_value_id")
+
+  attribute   Attributes   @relation(fields: [attributeId], references: [id])
+  optionValue OptionValues @relation(fields: [optionValueId], references: [id])
+
+  @@map("attribute_options")
+}
+
+model ProductAttributes {
+  id            String @id @default(cuid())
+  productId     String @map("product_id")
+  attributeId   String @map("attribute_id")
+  optionValueId String @map("option_value_id")
+
+  product     Products     @relation(fields: [productId], references: [id], onDelete: Cascade)
+  attribute   Attributes   @relation(fields: [attributeId], references: [id])
+  optionValue OptionValues @relation(fields: [optionValueId], references: [id])
+
+  @@unique([productId, attributeId])
+  @@map("product_attributes")
 }

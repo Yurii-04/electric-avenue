@@ -98,8 +98,8 @@ const Header = () => {
   };
 
   return (
-    <Container>
-      <AppBar position="static" sx={styles.header}>
+    <Container component='header'>
+      <AppBar sx={styles.header} component='div'>
         <Toolbar>
           <Box sx={styles.leftSection}>
             {!isTablet ? (

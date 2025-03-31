@@ -18,7 +18,9 @@ import { GetCurrentUserId, Public } from '~/common/decorators';
 import { PageOptionsDto } from '~/common/dtos';
 import { ParseJsonPipe, QueryValidationPipe } from '~/common/pipes';
 import { FilesInterceptor } from '@nestjs/platform-express';
-import { Products } from '@prisma/client';
+import { FilesValidationPipe } from '~/common/pipes/files-validation.pipe';
+
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
 
 @Controller('products')
 export class ProductController {
@@ -26,12 +28,16 @@ export class ProductController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  @UseInterceptors(FilesInterceptor('files'))
+  @UseInterceptors(
+    FilesInterceptor('files', 20, {
+      limits: { fileSize: MAX_FILE_SIZE }, // 5MB
+    }),
+  )
   async create(
     @Body() dto: CreateProductDto,
     @GetCurrentUserId() userId: string,
-    @UploadedFiles() files: Express.Multer.File[],
-  ): Promise<Products> {
+    @UploadedFiles(new FilesValidationPipe()) files: Express.Multer.File[],
+  ) {
     return this.productService.create(dto, userId, files);
   }
 
@@ -51,7 +57,7 @@ export class ProductController {
   @Public()
   @Get('/search')
   async searchProducts(
-    @Query('title') title: string,
+    @Query('query') query: string,
     @Query(
       'page-options',
       new ParseJsonPipe(),
@@ -59,13 +65,13 @@ export class ProductController {
     )
     pageOptionsDto: PageOptionsDto,
   ) {
-    return this.productService.searchProducts(title, pageOptionsDto);
+    return this.productService.searchProducts(query, pageOptionsDto);
   }
 
   @Public()
   @Get('/search-by-category')
   async getByCategory(
-    @Query('category') categoryId: number,
+    @Query('category') categoryId: string,
     @Query(
       'page-options',
       new ParseJsonPipe(),
@@ -91,13 +97,17 @@ export class ProductController {
   }
 
   @Patch(':id')
-  @UseInterceptors(FilesInterceptor('files'))
+  @UseInterceptors(
+    FilesInterceptor('files', 20, {
+      limits: { fileSize: MAX_FILE_SIZE },
+    }),
+  )
   async updateProduct(
     @Param('id') productId: string,
     @Body() updateProductDto: UpdateProductDto,
     @GetCurrentUserId() userId: string,
     @UploadedFiles() files: Express.Multer.File[],
-  ): Promise<Products> {
+  ) {
     return this.productService.updateProduct(
       updateProductDto,
       productId,

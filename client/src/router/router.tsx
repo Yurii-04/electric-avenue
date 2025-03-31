@@ -7,6 +7,7 @@ import { authRouter } from '~/router/routes/authRouter';
 import errorRouter from '~/router/routes/errorRouter';
 import AppContent from '~/containers/app-content/AppContent';
 import Home from '~/pages/home/Home';
+import { home } from '~/router/constants/crumbs';
 
 export const routerConfig = (
   <Route
@@ -14,7 +15,7 @@ export const routerConfig = (
     errorElement={<Navigate to={errorRoutes.notFound.path} />}
     path={guestRoutes.home.route}
   >
-    <Route element={<AppContent />}>
+    <Route element={<AppContent />} handle={{crumb: home}}>
       <Route element={<Home />} index />
       {guestRouter}
       {authRouter}
@@ -26,6 +27,3 @@ export const routerConfig = (
 export const router = createBrowserRouter(
   createRoutesFromElements(routerConfig),
 );
-
-
-

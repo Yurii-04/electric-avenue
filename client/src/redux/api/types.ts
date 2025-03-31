@@ -1,4 +1,4 @@
-import { ErrorResponse as ApiErrorResponse } from '~/types';
+import { ErrorResponse } from '~/types';
 
 export interface User {
   id: string;
@@ -14,7 +14,13 @@ export type AccessToken = {
   accessToken: string;
 };
 
-export interface ErrorResponse {
+export interface IErrorResponse {
   status: number;
-  data: ApiErrorResponse;
+  data: ErrorResponse;
+}
+
+export type error = {
+  error: IErrorResponse
+  isUnhandledError: false,
+  meta: undefined
 }

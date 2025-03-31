@@ -8,3 +8,8 @@ export enum snackbarVariants {
   Success = 'success',
   Warning = 'warning'
 }
+
+export const enum Order {
+  ASC = 'asc',
+  DESC = 'desc',
+}

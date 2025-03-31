@@ -1,8 +1,11 @@
 import Typography from '@mui/material/Typography';
+import Container from '~/components/container/Container';
 
 const Home = () => {
   return (
-    <Typography>Home page</Typography>
+    <Container>
+      <Typography>Home page</Typography>
+    </Container>
   );
 };
 

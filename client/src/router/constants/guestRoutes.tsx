@@ -13,7 +13,7 @@ export const guestRoutes = {
     },
     cart: {
       icon: <ShoppingCartOutlinedIcon />,
-      text: 'cart',
+      text: 'Cart',
       path: '/cart',
       route: '/cart',
     },

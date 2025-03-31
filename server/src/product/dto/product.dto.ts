@@ -1,16 +1,21 @@
-import { AttributeValueDto } from '~/product/dto/attribute.dto';
 import {
-  ArrayNotEmpty,
   IsArray,
   IsDecimal,
   IsNotEmpty,
-  IsNumber,
   IsOptional,
   IsString,
   Length,
   ValidateNested,
 } from 'class-validator';
 import { Type } from 'class-transformer';
+
+class AttributeDto {
+  @IsString()
+  key: string;
+
+  @IsString()
+  value: string;
+}
 
 export class CreateProductDto {
   @IsString()
@@ -25,16 +30,14 @@ export class CreateProductDto {
   @IsNotEmpty()
   price: string;
 
-  @Type(() => Number)
-  @IsNumber()
+  @IsString()
   @IsNotEmpty()
-  categoryId: number;
+  categoryId: string;
 
   @IsArray()
-  @ArrayNotEmpty()
-  @ValidateNested({ each: true })
-  @Type(() => AttributeValueDto)
-  attributes: AttributeValueDto[];
+  @ValidateNested()
+  @Type(() => AttributeDto)
+  attributes: AttributeDto[];
 }
 
 export class UpdateProductDto {
@@ -54,15 +57,19 @@ export class UpdateProductDto {
   price?: string;
 
   @IsOptional()
-  @Type(() => Number)
-  @IsNumber()
+  @Type(() => String)
+  @IsString()
   @IsNotEmpty()
-  categoryId?: number;
+  categoryId?: string;
 
   @IsOptional()
   @IsArray()
-  @ArrayNotEmpty()
-  @ValidateNested({ each: true })
-  @Type(() => AttributeValueDto)
-  attributes?: AttributeValueDto[];
+  @IsString({ each: true })
+  imagesToDelete?: string[];
+
+  @IsOptional()
+  @IsArray()
+  @ValidateNested()
+  @Type(() => AttributeDto)
+  attributes?: AttributeDto[];
 }

@@ -6,7 +6,7 @@ import { styles } from '~/components/auth-form/styles';
 import { emailValidation, nameValidation, passwordValidation } from '~/utils/validations/auth-validation';
 import { useRegisterUserMutation } from '~/redux/api/authApi';
 import { useSnackbarContext } from '~/context/snackbar';
-import { ErrorResponse } from '~/redux/api/types';
+import { IErrorResponse } from '~/redux/api/types';
 
 type RegisterFormProps = {
   closeModal: () => void;
@@ -35,7 +35,7 @@ const RegisterForm: FC<RegisterFormProps> = ({ closeModal }) => {
     if (isError) {
       setAlert({
         severity: snackbarVariants.Error,
-        message: (error as ErrorResponse).data.message,
+        message: (error as IErrorResponse).data.message,
       });
     }
   }, [isLoading, closeModal, error, isError, setAlert, isSuccess]);

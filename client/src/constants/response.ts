@@ -1,6 +1,6 @@
 import { ProductWithPagination } from '~/types';
 
-export const defaultResponse: ProductWithPagination = {
+export const defaultProductResponse: ProductWithPagination = {
   data: [],
   meta: {
     page: 1,

@@ -3,12 +3,13 @@ import { commonStyles } from '~/styles/common-styles/common-styles';
 
 export const styles = {
   header: {
-    marginY: '15px',
+    marginY: '10px',
     backgroundColor: 'basic.white',
     color: 'basic.black',
     borderRadius: '15px',
     height: '50px',
     boxShadow: mainShadow,
+    position: 'static',
     ...commonStyles.alignItemsCenter,
     flexDirection: 'row',
     '& .MuiToolbar-root': {

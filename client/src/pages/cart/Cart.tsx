@@ -1,8 +1,11 @@
 import Typography from '@mui/material/Typography';
+import Container from '~/components/container/Container';
 
 const Cart = () => {
   return (
-    <Typography>Cart page</Typography>
+    <Container>
+      <Typography>Cart page</Typography>
+    </Container>
   );
 };
 

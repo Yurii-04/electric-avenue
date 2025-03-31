@@ -5,7 +5,7 @@ import { useDebounce } from '~/hooks/use-debounce';
 import { useAxios } from '~/hooks/use-axios';
 import { productService } from '~/services/product-service';
 import { useSnackbarContext } from '~/context/snackbar';
-import { defaultResponse } from '~/constants/response';
+import { defaultProductResponse } from '~/constants/response';
 import SearchIcon from '@mui/icons-material/Search';
 import { styles } from '~/containers/search-bar/search-bar.styles';
 import { useToggleVisibility  } from '~/hooks/use-toggle-visibility';
@@ -33,7 +33,7 @@ const SearchBar = () => {
 
   const { fetchData } = useAxios<ProductWithPagination, SearchParams>({
     service: serviceFunction,
-    defaultResponse,
+    defaultResponse: defaultProductResponse,
     onResponse: (response) => {
       setData(response.data)
       setIsLoading(false);
@@ -52,7 +52,7 @@ const SearchBar = () => {
       return;
     }
     setIsLoading(true);
-    debouncedFetchData({ title: value });
+    debouncedFetchData({ query: value });
   };
 
   return (

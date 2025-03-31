@@ -1,15 +1,23 @@
 import {
+  Injectable,
   ForbiddenException,
   NotFoundException,
-  Injectable,
   BadRequestException,
+  InternalServerErrorException,
 } from '@nestjs/common';
 import { PrismaService } from '~/prisma/prisma.service';
 import { CreateProductDto, UpdateProductDto } from '~/product/dto';
 import { PageDto, PageMetaDto, PageOptionsDto } from '~/common/dtos';
-import { Prisma, Products } from '@prisma/client';
+import { Prisma } from '@prisma/client';
 import { CloudinaryService } from '~/cloudinary/cloudinary.service';
-import { ProductMainFields, ProductWithAttributes } from '~/product/types';
+import {
+  Attribute,
+  Image,
+  MappedAttribute,
+  ProductMainFields,
+  ProductWithAttributes,
+  ProductWithRelations,
+} from '~/product/types';
 
 @Injectable()
 export class ProductService {
@@ -22,222 +30,240 @@ export class ProductService {
     id: true,
     title: true,
     description: true,
-    images: true,
+    productImages: { select: { url: true } },
     price: true,
   };
 
-  private async uploadImages(files: Express.Multer.File[]): Promise<string[]> {
-    const images = await this.cloudinary.uploadImages(files).catch(() => {
-      throw new BadRequestException('Invalid file type');
+  private async getPaginatedProducts(
+    where: Prisma.ProductsWhereInput,
+    pageOptionsDto: PageOptionsDto,
+  ): Promise<PageDto<ProductMainFields>> {
+    const { skip, take, orderBy, order } = pageOptionsDto;
+    const [data, itemCount] = await Promise.all([
+      this.prisma.products.findMany({
+        select: this.selectedFields,
+        where,
+        skip,
+        take,
+        orderBy: { [orderBy]: order },
+      }),
+      this.prisma.products.count({ where }),
+    ]);
+    const pageMetaDto = new PageMetaDto({ pageOptionsDto, itemCount });
+    return new PageDto(data, pageMetaDto);
+  }
+
+  private async mapProductAttributes(
+    inputAttributes: Attribute[],
+    categoryId: string,
+  ): Promise<MappedAttribute[]> {
+    const categoryAttributes = await this.prisma.attributes.findMany({
+      where: { categoryId },
+      include: { attributeOptions: { include: { optionValue: true } } },
+    });
+    return inputAttributes.map(
+      ({ key: attributeName, value: attributeValue }) => {
+        const matchingAttribute = categoryAttributes.find(
+          (a) => a.name === attributeName,
+        );
+        if (!matchingAttribute)
+          throw new NotFoundException(`Attribute ${attributeName} not found`);
+
+        const matchingOption = matchingAttribute.attributeOptions.find(
+          (ao) => ao.optionValue.value === attributeValue,
+        );
+        if (!matchingOption)
+          throw new NotFoundException(
+            `Value ${attributeValue} not found for ${attributeName}`,
+          );
+
+        return {
+          attributeId: matchingAttribute.id,
+          optionValueId: matchingOption.optionValueId,
+        };
+      },
+    );
+  }
+
+  private transformProduct(product: ProductWithRelations) {
+    return {
+      ...product,
+      category: product.category.name,
+      productAttributes: product.productAttributes.map((attr) => ({
+        key: attr.attribute.name,
+        value: attr.optionValue.value,
+      })),
+    };
+  }
+
+  private async validateProductAccess(productId: string, userId: string) {
+    const product = await this.prisma.products.findUnique({
+      where: { id: productId },
+      include: { productImages: true },
     });
 
-    return images.map((image) => image.url);
+    if (!product) throw new NotFoundException('Product not found');
+    if (product.sellerId !== userId)
+      throw new ForbiddenException('Access denied');
+
+    return product;
+  }
+
+  private async validateCategory(categoryId: string) {
+    const category = await this.prisma.categories.findUnique({
+      where: { id: categoryId },
+    });
+
+    if (!category) throw new NotFoundException('Category not found');
+    return category;
+  }
+
+  private async handleProductImages(
+    currentImages: Image[] = [],
+    newFiles: Express.Multer.File[] = [],
+    imagesToDelete: string[] = [],
+  ) {
+    if (imagesToDelete.length > 0) {
+      const remainingImages = currentImages.filter(
+        (img) => !imagesToDelete.includes(img.publicId),
+      );
+
+      if (remainingImages.length === 0 && newFiles.length === 0) {
+        throw new ForbiddenException("You can't delete all images");
+      }
+    }
+
+    let uploadedImages: Image[] = [];
+    if (newFiles.length > 0) {
+      uploadedImages = await this.cloudinary
+        .uploadImages(newFiles)
+        .catch((e) => {
+          console.error(e);
+          throw new InternalServerErrorException('Failed to upload images');
+        });
+    }
+    return { uploadedImages, imagesToDelete };
+  }
+
+  private async cleanupImages(publicIds: string[]) {
+    if (publicIds.length > 0) {
+      await this.cloudinary.deleteImages(publicIds).catch((e) => {
+        console.error(e);
+        throw new InternalServerErrorException('Failed to delete images');
+      });
+    }
   }
 
   async create(
     dto: CreateProductDto,
     userId: string,
     files: Express.Multer.File[],
-  ): Promise<Products> {
+  ): Promise<ProductWithAttributes> {
     const { categoryId, attributes, ...data } = dto;
-    const category = await this.prisma.categories.findUnique({
-      where: { id: categoryId },
-    });
+    await this.validateCategory(categoryId);
+    const mappedAttributes = await this.mapProductAttributes(
+      attributes,
+      categoryId,
+    );
+    const { uploadedImages } = await this.handleProductImages([], files);
 
-    if (!category) {
-      throw new NotFoundException('Category not found');
+    try {
+      const result = await this.prisma.$transaction(async (prisma) => {
+        const product = await prisma.products.create({
+          data: {
+            ...data,
+            seller: { connect: { id: userId } },
+            category: { connect: { id: categoryId } },
+            productAttributes: {
+              create: mappedAttributes.map((attr) => ({
+                attributeId: attr.attributeId,
+                optionValueId: attr.optionValueId,
+              })),
+            },
+          },
+        });
+
+        await prisma.productImages.createMany({
+          data: uploadedImages.map((img) => ({
+            productId: product.id,
+            url: img.url,
+            publicId: img.publicId,
+          })),
+        });
+
+        return prisma.products.findUnique({
+          where: { id: product.id },
+          omit: { categoryId: true },
+          include: {
+            category: { select: { name: true } },
+            productImages: { select: { url: true, publicId: true } },
+            productAttributes: {
+              select: {
+                attribute: { select: { name: true } },
+                optionValue: { select: { value: true } },
+              },
+            },
+          },
+        });
+      });
+
+      return this.transformProduct(result);
+    } catch (error) {
+      console.error(error);
+      await this.cleanupImages(uploadedImages.map((img) => img.publicId));
+      throw new InternalServerErrorException('Failed to create product');
     }
-
-    const attributeIds = attributes.map((attr) => attr.attributeId);
-    const existingAttributes = await this.prisma.attributes.findMany({
-      where: {
-        id: {
-          in: attributeIds,
-        },
-      },
-    });
-
-    if (existingAttributes.length !== attributeIds.length) {
-      throw new NotFoundException('One or more attributes not found');
-    }
-
-    const imageUrls = await this.uploadImages(files);
-
-    const product = await this.prisma.products.create({
-      data: {
-        ...data,
-        seller: {
-          connect: { id: userId },
-        },
-        category: {
-          connect: { id: categoryId },
-        },
-        attributeValues: {
-          create: attributes,
-        },
-      },
-    });
-
-    return this.prisma.products.update({
-      where: {
-        id: product.id,
-      },
-      data: {
-        images: imageUrls,
-      },
-    });
   }
 
   async getById(productId: string): Promise<ProductWithAttributes> {
     const product = await this.prisma.products.findUnique({
-      where: {
-        id: productId,
-      },
-      select: {
-        id: true,
-        sellerId: true,
-        title: true,
-        description: true,
-        price: true,
-        images: true,
-        category: true,
-        attributeValues: {
+      where: { id: productId },
+      omit: { categoryId: true },
+      include: {
+        category: { select: { name: true } },
+        productImages: { select: { url: true, publicId: true } },
+        productAttributes: {
           select: {
-            value: true,
-            attribute: {
-              select: {
-                name: true,
-              },
-            },
+            attribute: { select: { name: true } },
+            optionValue: { select: { value: true } },
           },
         },
-        createdAt: true,
-        updatedAt: true,
       },
     });
+    if (!product) throw new NotFoundException('Product not found');
 
-    if (!product) {
-      throw new NotFoundException();
-    }
-    const result = {
-      ...product,
-      attributes: product.attributeValues.map((attr) => ({
-        key: attr.attribute.name,
-        value: attr.value,
-      })),
-    };
-
-    delete result.attributeValues;
-
-    return result;
+    return this.transformProduct(product);
   }
 
-  async getAll(
-    pageOptionsDto: PageOptionsDto,
-  ): Promise<PageDto<ProductMainFields>> {
-    const { skip, take, orderBy, order } = pageOptionsDto;
-    const [data, itemCount] = await Promise.all([
-      this.prisma.products.findMany({
-        select: { ...this.selectedFields },
-        skip,
-        take,
-        orderBy: {
-          [orderBy]: order,
-        },
-      }),
-      this.prisma.products.count(),
-    ]);
-
-    const pageMetaDto = new PageMetaDto({ pageOptionsDto, itemCount });
-    return new PageDto(data, pageMetaDto);
+  async getAll(pageOptionsDto: PageOptionsDto) {
+    return this.getPaginatedProducts({}, pageOptionsDto);
   }
 
-  async searchProducts(
-    title: string,
-    pageOptionsDto: PageOptionsDto,
-  ): Promise<PageDto<ProductMainFields>> {
-    const { skip, take, orderBy, order } = pageOptionsDto;
-
+  async searchProducts(query: string, pageOptionsDto: PageOptionsDto) {
     const where: Prisma.ProductsWhereInput = {
-      title: {
-        contains: title,
-        mode: 'insensitive',
-      },
+      OR: [
+        { title: { contains: query, mode: 'insensitive' } },
+        { description: { contains: query, mode: 'insensitive' } },
+      ],
     };
 
-    const [data, itemCount] = await Promise.all([
-      this.prisma.products.findMany({
-        select: { ...this.selectedFields },
-        where,
-        skip,
-        take,
-        orderBy: {
-          [orderBy]: order,
-        },
-      }),
-      this.prisma.products.count({ where }),
-    ]);
-
-    const pageMetaDto = new PageMetaDto({ pageOptionsDto, itemCount });
-    return new PageDto(data, pageMetaDto);
+    return this.getPaginatedProducts(where, pageOptionsDto);
   }
 
-  async getByCategory(
-    categoryId: number,
-    pageOptionsDto: PageOptionsDto,
-  ): Promise<PageDto<ProductMainFields>> {
-    const { skip, take, orderBy, order } = pageOptionsDto;
-    const [data, itemCount] = await Promise.all([
-      this.prisma.products.findMany({
-        select: { ...this.selectedFields },
-        skip,
-        take,
-        orderBy: {
-          [orderBy]: order,
-        },
-        where: {
-          category: {
-            id: categoryId,
-          },
-        },
-      }),
-      this.prisma.products.count({
-        where: {
-          category: {
-            id: categoryId,
-          },
-        },
-      }),
-    ]);
+  async getByCategory(categoryId: string, pageOptionsDto: PageOptionsDto) {
+    const where = {
+      category: { id: categoryId },
+    };
 
-    const pageMetaDto = new PageMetaDto({ pageOptionsDto, itemCount });
-    return new PageDto(data, pageMetaDto);
+    return this.getPaginatedProducts(where, pageOptionsDto);
   }
 
-  async deleteProduct(
-    productId: string,
-    userId: string,
-  ): Promise<ProductMainFields> {
-    const product = await this.prisma.products.findUnique({
-      where: {
-        id: productId,
-      },
-    });
+  async deleteProduct(productId: string, userId: string) {
+    const product = await this.validateProductAccess(productId, userId);
+    await this.prisma.products.delete({ where: { id: product.id } });
+    await this.cleanupImages(product.productImages.map((img) => img.publicId));
 
-    if (!product) {
-      throw new NotFoundException();
-    }
-
-    if (product.sellerId !== userId) {
-      throw new ForbiddenException();
-    }
-
-    return this.prisma.products.delete({
-      select: { ...this.selectedFields },
-      where: {
-        id: product.id,
-      },
-    });
+    return { success: true, message: 'Product deleted successfully' };
   }
 
   async updateProduct(
@@ -245,32 +271,88 @@ export class ProductService {
     productId: string,
     userId: string,
     files: Express.Multer.File[],
-  ): Promise<Products> {
-    const product = await this.prisma.products.findUnique({
-      where: { id: productId },
-    });
+  ): Promise<ProductWithAttributes> {
+    const { imagesToDelete = [], attributes, categoryId, ...rest } = dto;
+    const product = await this.validateProductAccess(productId, userId);
 
-    if (!product) {
-      throw new NotFoundException('Product not found');
+    if (categoryId) {
+      if (!attributes)
+        throw new BadRequestException(
+          'With the new category, the required field is attributes',
+        );
+      await this.validateCategory(categoryId);
+    }
+    const { uploadedImages } = await this.handleProductImages(
+      product.productImages,
+      files,
+      imagesToDelete,
+    );
+
+    let mappedAttributes: MappedAttribute[] = [];
+    if (attributes) {
+      mappedAttributes = await this.mapProductAttributes(
+        attributes,
+        categoryId || product.categoryId,
+      );
     }
 
-    if (product.sellerId !== userId) {
-      throw new ForbiddenException('Access denied');
-    }
+    try {
+      const updatedProduct = await this.prisma.$transaction(async (prisma) => {
+        if (imagesToDelete && imagesToDelete.length > 0) {
+          await prisma.productImages.deleteMany({
+            where: {
+              productId,
+              publicId: { in: imagesToDelete },
+            },
+          });
+        }
 
-    let imageUrls: string[];
-    if (Array.isArray(files)) {
-      imageUrls = await this.uploadImages(files);
-    }
+        if (uploadedImages.length > 0) {
+          await prisma.productImages.createMany({
+            data: uploadedImages.map((img) => ({
+              productId,
+              url: img.url,
+              publicId: img.publicId,
+            })),
+          });
+        }
 
-    return this.prisma.products.update({
-      where: { id: productId },
-      data: {
-        ...dto,
-        images: {
-          push: imageUrls,
-        },
-      },
-    });
+        return prisma.products.update({
+          where: { id: productId },
+          data: {
+            ...rest,
+            categoryId,
+            productAttributes: attributes
+              ? {
+                  deleteMany: {},
+                  createMany: {
+                    data: mappedAttributes.map((attr) => ({
+                      attributeId: attr.attributeId,
+                      optionValueId: attr.optionValueId,
+                    })),
+                  },
+                }
+              : undefined,
+          },
+          include: {
+            productImages: true,
+            category: true,
+            productAttributes: {
+              include: {
+                attribute: true,
+                optionValue: true,
+              },
+            },
+          },
+        });
+      });
+
+      await this.cleanupImages(imagesToDelete);
+      return this.transformProduct(updatedProduct);
+    } catch (error) {
+      console.error(error);
+      await this.cleanupImages(uploadedImages.map((img) => img.publicId));
+      throw new InternalServerErrorException();
+    }
   }
 }
