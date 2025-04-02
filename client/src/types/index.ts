@@ -3,3 +3,4 @@ export * from './products/products.index';
 export * from './services/services.index';
 export * from './categories/categories.index';
 export * from './auth/auth.index';
+export * from './components/components.index'

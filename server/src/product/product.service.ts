@@ -241,10 +241,7 @@ export class ProductService {
 
   async searchProducts(query: string, pageOptionsDto: PageOptionsDto) {
     const where: Prisma.ProductsWhereInput = {
-      OR: [
-        { title: { contains: query, mode: 'insensitive' } },
-        { description: { contains: query, mode: 'insensitive' } },
-      ],
+      title: { contains: query, mode: 'insensitive' },
     };
 
     return this.getPaginatedProducts(where, pageOptionsDto);

@@ -285,10 +285,7 @@ describe('ProductService', () => {
       expect(prisma.products.findMany).toHaveBeenCalledWith({
         select: expect.any(Object),
         where: {
-          OR: [
-            { title: { contains: query, mode: 'insensitive' } },
-            { description: { contains: query, mode: 'insensitive' } },
-          ],
+          title: { contains: query, mode: 'insensitive' },
         },
         skip: 0,
         take: 10,

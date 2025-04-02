@@ -28,6 +28,7 @@ import LoginButton from '~/components/login-button/LoginButton';
 import { useAppSelector } from '~/redux/store';
 import { selectIsAuthenticated } from '~/redux/features/userSlice';
 import { useLogoutUserMutation } from '~/redux/api/authApi';
+import { guestRoutes } from '~/router/constants/guestRoutes';
 
 const Header = () => {
   const [logoutUser] = useLogoutUserMutation();
@@ -104,7 +105,7 @@ const Header = () => {
           <Box sx={styles.leftSection}>
             {!isTablet ? (
               <>
-                <ImgIcon />
+                <Link to={guestRoutes.home.route}><ImgIcon /></Link>
                 <Button
                   startIcon={<GridViewOutlinedIcon />}
                   variant="text"
