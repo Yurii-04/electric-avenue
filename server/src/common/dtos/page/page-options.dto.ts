@@ -1,4 +1,4 @@
-import { ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiPropertyOptional, OmitType } from '@nestjs/swagger';
 import { Order } from '~/common/enums';
 import { IsEnum, IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
 import { Type } from 'class-transformer';
@@ -39,6 +39,15 @@ export class PageOptionsDto {
   @IsOptional()
   readonly take?: number = 10;
 
+  get skip(): number {
+    return (this.page - 1) * this.take;
+  }
+}
+
+export class PageOptionsWithoutSortingDto extends OmitType(PageOptionsDto, [
+  'order',
+  'orderBy',
+] as const) {
   get skip(): number {
     return (this.page - 1) * this.take;
   }

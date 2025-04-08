@@ -9,16 +9,6 @@ export type ProductMainFields = Pick<
   'id' | 'title' | 'description' | 'price'
 >;
 
-export type Attribute = {
-  key: string;
-  value: string;
-};
-
-export type MappedAttribute = {
-  attributeId: string;
-  optionValueId: string;
-};
-
 export type Image = {
   url: string;
   publicId: string;

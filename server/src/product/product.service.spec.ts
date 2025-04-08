@@ -9,8 +9,9 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
-import { PageOptionsDto } from '~/common/dtos';
+import { PageOptionsDto, PageOptionsWithoutSortingDto } from '~/common/dtos';
 import { CreateProductDto } from '~/product/dto';
+import { ProductAttributesService } from '~/product-attributes/productAttributes.service';
 
 const mockPrismaService = {
   products: {
@@ -20,6 +21,7 @@ const mockPrismaService = {
     findMany: jest.fn(),
     delete: jest.fn(),
     count: jest.fn(),
+    groupBy: jest.fn(),
     $transaction: jest.fn(),
   },
   categories: {
@@ -40,10 +42,15 @@ const mockCloudinaryService = {
   deleteImages: jest.fn(),
 };
 
+const mockProductAttributesService = {
+  mapProductAttributes: jest.fn(),
+};
+
 describe('ProductService', () => {
   let service: ProductService;
   let prisma: typeof mockPrismaService;
   let cloudinary: typeof mockCloudinaryService;
+  let productAttributes: typeof mockProductAttributesService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -51,12 +58,17 @@ describe('ProductService', () => {
         ProductService,
         { provide: PrismaService, useValue: mockPrismaService },
         { provide: CloudinaryService, useValue: mockCloudinaryService },
+        {
+          provide: ProductAttributesService,
+          useValue: mockProductAttributesService,
+        },
       ],
     }).compile();
 
     service = module.get<ProductService>(ProductService);
     prisma = module.get(PrismaService);
     cloudinary = module.get(CloudinaryService);
+    productAttributes = module.get(ProductAttributesService);
   });
 
   afterEach(() => {
@@ -100,6 +112,9 @@ describe('ProductService', () => {
         ],
       };
 
+      mockProductAttributesService.mapProductAttributes.mockResolvedValue([
+        { attributeId: 'attr1', optionValueId: 'opt1' },
+      ]);
       prisma.categories.findUnique.mockResolvedValue(mockCategory);
       prisma.attributes.findMany.mockResolvedValue(mockAttributes);
       cloudinary.uploadImages.mockResolvedValue(mockUploadedImages);
@@ -111,13 +126,8 @@ describe('ProductService', () => {
       prisma.products.findUnique.mockResolvedValue(mockProduct);
 
       const result = await service.create(dto, userId, files);
-
       expect(prisma.categories.findUnique).toHaveBeenCalledWith({
         where: { id: 'cat123' },
-      });
-      expect(prisma.attributes.findMany).toHaveBeenCalledWith({
-        where: { categoryId: 'cat123' },
-        include: { attributeOptions: { include: { optionValue: true } } },
       });
       expect(cloudinary.uploadImages).toHaveBeenCalledWith(files);
       expect(prisma.products.create).toHaveBeenCalledWith({
@@ -161,25 +171,48 @@ describe('ProductService', () => {
     it('should throw InternalServerErrorException and cleanup images on failure', async () => {
       const dto: CreateProductDto = {
         title: 'Test Product',
+        description: 'Test description',
         categoryId: 'cat123',
-        description: 'test description',
         price: '100',
-        attributes: [],
+        attributes: [{ key: 'Color', value: 'Black' }],
       };
+      const userId = 'user123';
       const files = [{ filename: 'image1.jpg' }] as Express.Multer.File[];
+
+      const mockCategory = { id: 'cat123' };
+      const mockAttributes = [
+        {
+          id: 'attr1',
+          name: 'Color',
+          attributeOptions: [
+            { optionValueId: 'opt1', optionValue: { value: 'Black' } },
+          ],
+        },
+      ];
       const mockUploadedImages = [
         { url: 'http://image.url', publicId: 'img1' },
       ];
 
-      prisma.categories.findUnique.mockResolvedValue({ id: 'cat123' });
+      mockProductAttributesService.mapProductAttributes.mockResolvedValue([
+        { attributeId: 'attr1', optionValueId: 'opt1' },
+      ]);
+      prisma.categories.findUnique.mockResolvedValue(mockCategory);
+      prisma.attributes.findMany.mockResolvedValue(mockAttributes);
       cloudinary.uploadImages.mockResolvedValue(mockUploadedImages);
-      prisma.$transaction.mockRejectedValue(new Error('Transaction failed'));
-      cloudinary.deleteImages.mockResolvedValue({});
 
-      await expect(service.create(dto, 'user123', files)).rejects.toThrow(
+      prisma.$transaction.mockImplementation(async () => {
+        throw new Error('Database error');
+      });
+
+      cloudinary.deleteImages = jest.fn().mockResolvedValue(undefined);
+
+      await expect(service.create(dto, userId, files)).rejects.toThrow(
         InternalServerErrorException,
       );
-      expect(cloudinary.deleteImages).toHaveBeenCalledWith(['img1']);
+
+      expect(cloudinary.deleteImages).toHaveBeenCalledWith(
+        mockUploadedImages.map((img) => img.publicId),
+      );
     });
   });
 
@@ -263,27 +296,21 @@ describe('ProductService', () => {
   describe('searchProducts', () => {
     it('should return paginated products matching search query', async () => {
       const query = 'test';
-      const pageOptionsDto = plainToInstance(PageOptionsDto, {
+      const pageOptionsDto = plainToInstance(PageOptionsWithoutSortingDto, {
         page: 1,
         take: 10,
-        orderBy: 'title',
-        order: 'asc',
       });
-      const mockProducts = [
-        {
-          id: 'prod1',
-          title: 'Test Product',
-          price: '100',
-          productImages: [{ url: 'http://image1.url' }],
-        },
-      ];
-      prisma.products.findMany.mockResolvedValue(mockProducts);
-      prisma.products.count.mockResolvedValue(1);
+      const mockGroupedProducts = [{ title: 'Test Product' }];
+      const mockItemCount = 1;
+
+      prisma.products.groupBy
+        .mockResolvedValue(mockGroupedProducts)
+        .mockResolvedValue(mockGroupedProducts);
 
       const result = await service.searchProducts(query, pageOptionsDto);
 
-      expect(prisma.products.findMany).toHaveBeenCalledWith({
-        select: expect.any(Object),
+      expect(prisma.products.groupBy).toHaveBeenCalledWith({
+        by: ['title'],
         where: {
           title: { contains: query, mode: 'insensitive' },
         },
@@ -291,8 +318,15 @@ describe('ProductService', () => {
         take: 10,
         orderBy: { title: 'asc' },
       });
-      expect(result.data).toEqual(mockProducts);
-      expect(result.meta.itemCount).toBe(1);
+      expect(prisma.products.groupBy).toHaveBeenCalledWith({
+        by: ['title'],
+        where: {
+          title: { contains: query, mode: 'insensitive' },
+        },
+      });
+
+      expect(result.data).toEqual(mockGroupedProducts);
+      expect(result.meta.itemCount).toBe(mockItemCount);
     });
   });
 
@@ -390,14 +424,8 @@ describe('ProductService', () => {
         categoryId: 'cat123',
         productImages: [{ url: 'http://old.url', publicId: 'img1' }],
       };
-      const mockAttributes = [
-        {
-          id: 'attr1',
-          name: 'Color',
-          attributeOptions: [
-            { optionValueId: 'opt1', optionValue: { value: 'Blue' } },
-          ],
-        },
+      const mockMappedAttributes = [
+        { attributeId: 'attr1', optionValueId: 'opt1' },
       ];
       const mockUploadedImages = [{ url: 'http://new.url', publicId: 'img2' }];
       const mockUpdatedProduct = {
@@ -412,7 +440,9 @@ describe('ProductService', () => {
 
       prisma.products.findUnique.mockResolvedValue(mockProduct);
       prisma.categories.findUnique.mockResolvedValue({ id: 'cat123' });
-      prisma.attributes.findMany.mockResolvedValue(mockAttributes);
+      productAttributes.mapProductAttributes.mockResolvedValue(
+        mockMappedAttributes,
+      );
       cloudinary.uploadImages.mockResolvedValue(mockUploadedImages);
       prisma.$transaction.mockImplementation(async (callback) =>
         callback(prisma),
@@ -431,9 +461,7 @@ describe('ProductService', () => {
           categoryId: 'cat123',
           productAttributes: {
             deleteMany: {},
-            createMany: {
-              data: [{ attributeId: 'attr1', optionValueId: 'opt1' }],
-            },
+            createMany: { data: mockMappedAttributes },
           },
         }),
         include: expect.any(Object),

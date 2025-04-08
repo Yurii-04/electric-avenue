@@ -15,7 +15,7 @@ import {
 import { ProductService } from './product.service';
 import { CreateProductDto, UpdateProductDto } from '~/product/dto';
 import { GetCurrentUserId, Public } from '~/common/decorators';
-import { PageOptionsDto } from '~/common/dtos';
+import { PageOptionsDto, PageOptionsWithoutSortingDto } from '~/common/dtos';
 import { ParseJsonPipe, QueryValidationPipe } from '~/common/pipes';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { FilesValidationPipe } from '~/common/pipes/files-validation.pipe';
@@ -61,9 +61,9 @@ export class ProductController {
     @Query(
       'page-options',
       new ParseJsonPipe(),
-      new QueryValidationPipe(PageOptionsDto),
+      new QueryValidationPipe(PageOptionsWithoutSortingDto),
     )
-    pageOptionsDto: PageOptionsDto,
+    pageOptionsDto: PageOptionsWithoutSortingDto,
   ) {
     return this.productService.searchProducts(query, pageOptionsDto);
   }

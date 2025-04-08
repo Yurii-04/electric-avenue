@@ -8,14 +8,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-
-class AttributeDto {
-  @IsString()
-  key: string;
-
-  @IsString()
-  value: string;
-}
+import { AttributeDto } from '~/product-attributes/dto';
 
 export class CreateProductDto {
   @IsString()

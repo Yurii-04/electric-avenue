@@ -4,8 +4,6 @@ import { categories, attributes, optionValues, attributeOptions } from './data';
 const prisma = new PrismaClient();
 
 async function main() {
-  await prisma.categories.deleteMany();
-
   await prisma.users.createMany({
     data: [
       {

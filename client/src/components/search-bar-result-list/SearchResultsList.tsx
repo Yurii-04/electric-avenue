@@ -1,16 +1,18 @@
-import React from 'react';
+import React, { FC } from 'react';
 import { List, ListItem, ListItemText, Skeleton } from '@mui/material';
 import SearchResult from '~/components/search-result/SearchResult';
 import { Product } from '~/types/products/interfaces/products.interfaces';
 import { styles } from './styles';
 
 type SearchResultsListProps = {
-  data: Product[];
+  data: Pick<Product, 'title'>[];
   isLoading: boolean;
+  setIsOpen: (isOpen: boolean) => void;
 }
 
-export const SearchResultsList = ({ data, isLoading }: SearchResultsListProps) => {
+export const SearchResultsList: FC<SearchResultsListProps> = ({ data, isLoading, setIsOpen }) => {
   const handleClick = (title: string) => {
+    setIsOpen(false);
     alert(`You selected ${title}`);
   };
 
@@ -33,7 +35,7 @@ export const SearchResultsList = ({ data, isLoading }: SearchResultsListProps) =
         ) :
         data.map((data) => (
           <SearchResult
-            key={data.id}
+            key={data.title}
             title={data.title}
             onClick={() => handleClick(data.title)}
           />

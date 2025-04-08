@@ -103,7 +103,7 @@ export const attributeOptions: AttributeOption[] = [
 
   { attributeId: 'a13', optionValueId: 'ov3' },
   { attributeId: 'a13', optionValueId: 'ov4' },
-  { attributeId: 'a13', optionValueId: 'ov4' },
+  { attributeId: 'a13', optionValueId: 'ov5' },
   { attributeId: 'a13', optionValueId: 'ov7' },
   { attributeId: 'a14', optionValueId: 'ov131' },
   { attributeId: 'a14', optionValueId: 'ov132' },

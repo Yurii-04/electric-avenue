@@ -8,15 +8,15 @@ import { useSnackbarContext } from '~/context/snackbar';
 import { defaultProductResponse } from '~/constants/response';
 import SearchIcon from '@mui/icons-material/Search';
 import { styles } from '~/containers/search-bar/search-bar.styles';
-import { useToggleVisibility  } from '~/hooks/use-toggle-visibility';
+import { useToggleVisibility } from '~/hooks/use-toggle-visibility';
 import Box from '@mui/material/Box';
 import { SearchResultsList } from '~/components/search-bar-result-list/SearchResultsList';
 
 const SearchBar = () => {
   const [input, setInput] = useState<string>('');
-  const [data, setData] = useState<Product[]>([]);
+  const [data, setData] = useState<Pick<Product, 'title'>[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const { isOpen, setIsOpen, containerRef } = useToggleVisibility <HTMLDivElement>();
+  const { isOpen, setIsOpen, containerRef } = useToggleVisibility<HTMLDivElement>();
   const { setAlert } = useSnackbarContext();
   const shouldShowList = isOpen && input.length > 0;
   const serviceFunction = useCallback(
@@ -35,7 +35,7 @@ const SearchBar = () => {
     service: serviceFunction,
     defaultResponse: defaultProductResponse,
     onResponse: (response) => {
-      setData(response.data)
+      setData(response.data);
       setIsLoading(false);
     },
     onResponseError,
@@ -81,7 +81,13 @@ const SearchBar = () => {
           },
         }}
       />
-      {shouldShowList && <SearchResultsList data={data} isLoading={isLoading} />}
+      {shouldShowList && (
+        <SearchResultsList
+          data={data}
+          isLoading={isLoading}
+          setIsOpen={setIsOpen}
+        />
+      )}
     </Box>
   );
 };

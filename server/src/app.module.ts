@@ -8,6 +8,7 @@ import { UserModule } from '~/user/user.module';
 import { CategoryModule } from './category/category.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { ProductModule } from './product/product.module';
+import { ProductAttributesModule } from './product-attributes/productAttributes.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { ProductModule } from './product/product.module';
     CategoryModule,
     CloudinaryModule,
     ProductModule,
+    ProductAttributesModule,
   ],
   providers: [
     {

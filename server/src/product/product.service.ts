@@ -7,23 +7,29 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '~/prisma/prisma.service';
 import { CreateProductDto, UpdateProductDto } from '~/product/dto';
-import { PageDto, PageMetaDto, PageOptionsDto } from '~/common/dtos';
-import { Prisma } from '@prisma/client';
+import {
+  PageDto,
+  PageMetaDto,
+  PageOptionsDto,
+  PageOptionsWithoutSortingDto,
+} from '~/common/dtos';
+import { Prisma, Products } from '@prisma/client';
 import { CloudinaryService } from '~/cloudinary/cloudinary.service';
 import {
-  Attribute,
   Image,
-  MappedAttribute,
   ProductMainFields,
   ProductWithAttributes,
   ProductWithRelations,
 } from '~/product/types';
+import { MappedAttribute } from '~/product-attributes/types';
+import { ProductAttributesService } from '~/product-attributes/productAttributes.service';
 
 @Injectable()
 export class ProductService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly cloudinary: CloudinaryService,
+    private readonly productAttributes: ProductAttributesService,
   ) {}
 
   private readonly selectedFields = {
@@ -51,38 +57,6 @@ export class ProductService {
     ]);
     const pageMetaDto = new PageMetaDto({ pageOptionsDto, itemCount });
     return new PageDto(data, pageMetaDto);
-  }
-
-  private async mapProductAttributes(
-    inputAttributes: Attribute[],
-    categoryId: string,
-  ): Promise<MappedAttribute[]> {
-    const categoryAttributes = await this.prisma.attributes.findMany({
-      where: { categoryId },
-      include: { attributeOptions: { include: { optionValue: true } } },
-    });
-    return inputAttributes.map(
-      ({ key: attributeName, value: attributeValue }) => {
-        const matchingAttribute = categoryAttributes.find(
-          (a) => a.name === attributeName,
-        );
-        if (!matchingAttribute)
-          throw new NotFoundException(`Attribute ${attributeName} not found`);
-
-        const matchingOption = matchingAttribute.attributeOptions.find(
-          (ao) => ao.optionValue.value === attributeValue,
-        );
-        if (!matchingOption)
-          throw new NotFoundException(
-            `Value ${attributeValue} not found for ${attributeName}`,
-          );
-
-        return {
-          attributeId: matchingAttribute.id,
-          optionValueId: matchingOption.optionValueId,
-        };
-      },
-    );
   }
 
   private transformProduct(product: ProductWithRelations) {
@@ -161,7 +135,7 @@ export class ProductService {
   ): Promise<ProductWithAttributes> {
     const { categoryId, attributes, ...data } = dto;
     await this.validateCategory(categoryId);
-    const mappedAttributes = await this.mapProductAttributes(
+    const mappedAttributes = await this.productAttributes.mapProductAttributes(
       attributes,
       categoryId,
     );
@@ -239,16 +213,36 @@ export class ProductService {
     return this.getPaginatedProducts({}, pageOptionsDto);
   }
 
-  async searchProducts(query: string, pageOptionsDto: PageOptionsDto) {
+  async searchProducts(
+    query: string,
+    pageOptionsDto: PageOptionsWithoutSortingDto,
+  ): Promise<PageDto<Pick<Products, 'title'>>> {
     const where: Prisma.ProductsWhereInput = {
       title: { contains: query, mode: 'insensitive' },
     };
+    const { skip, take } = pageOptionsDto;
+    const [data, itemCount] = await Promise.all([
+      this.prisma.products.groupBy({
+        by: ['title'],
+        where,
+        skip,
+        take,
+        orderBy: { title: 'asc' },
+      }),
+      this.prisma.products
+        .groupBy({
+          by: ['title'],
+          where,
+        })
+        .then((res) => res.length),
+    ]);
 
-    return this.getPaginatedProducts(where, pageOptionsDto);
+    const pageMetaDto = new PageMetaDto({ pageOptionsDto, itemCount });
+    return new PageDto(data, pageMetaDto);
   }
 
   async getByCategory(categoryId: string, pageOptionsDto: PageOptionsDto) {
-    const where = {
+    const where: Prisma.ProductsWhereInput = {
       category: { id: categoryId },
     };
 
@@ -287,7 +281,7 @@ export class ProductService {
 
     let mappedAttributes: MappedAttribute[] = [];
     if (attributes) {
-      mappedAttributes = await this.mapProductAttributes(
+      mappedAttributes = await this.productAttributes.mapProductAttributes(
         attributes,
         categoryId || product.categoryId,
       );
