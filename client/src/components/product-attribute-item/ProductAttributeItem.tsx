@@ -42,7 +42,7 @@ const ProductAttributeItem: FC<ProductAttributeItemProps> = memo(({
                 sx={styles.checkbox}
                 size="small"
                 onChange={(event) => onChange(attribute.name, option, event.target.checked)}
-                checked={selectedAttributes[attribute.name]?.includes(option) || false}
+                checked={selectedAttributes[attribute.name]?.includes(option) ?? false}
               />
             }
             label={

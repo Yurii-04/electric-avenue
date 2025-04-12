@@ -3,6 +3,10 @@ import { AccessToken } from '~/redux/api/types';
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL
 
+interface CustomAxiosRequestConfig extends AxiosRequestConfig {
+  _isRetry?: boolean;
+}
+
 export const axiosClient: AxiosInstance = axios.create({
   withCredentials: true,
   baseURL: BASE_URL,
@@ -20,7 +24,7 @@ axiosClient.interceptors.request.use((config) => {
 axiosClient.interceptors.response.use(
   (response) => response,
   async (error: AxiosError) => {
-    const originalRequest = error.config as AxiosRequestConfig & { _isRetry?: boolean };
+    const originalRequest = error.config as CustomAxiosRequestConfig & { _isRetry?: boolean };
     if (
       (error.response?.status === 401) &&
       originalRequest && !originalRequest._isRetry

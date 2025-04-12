@@ -11,9 +11,9 @@ interface UseAttributeFilterProps {
 const EXCLUDED_PARAMS = ['category', 'title'];
 
 export const useAttributeFilter = ({
-  onProductsUpdate,
-  fetchProducts,
-}: UseAttributeFilterProps) => {
+                                     onProductsUpdate,
+                                     fetchProducts,
+                                   }: UseAttributeFilterProps) => {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const getSelectedAttributesFromUrl = useCallback((): SelectedAttributes => {
@@ -31,15 +31,13 @@ export const useAttributeFilter = ({
       const currentAttributes = getSelectedAttributesFromUrl();
       const updatedAttributes = { ...currentAttributes };
 
-      if (!updatedAttributes[attributeName]) {
-        updatedAttributes[attributeName] = [];
-      }
+      updatedAttributes[attributeName] ??= [];
 
       if (checked) {
         updatedAttributes[attributeName] = [...updatedAttributes[attributeName], option];
       } else {
         updatedAttributes[attributeName] = updatedAttributes[attributeName].filter(
-          (item) => item !== option
+          (item) => item !== option,
         );
       }
 
@@ -51,7 +49,7 @@ export const useAttributeFilter = ({
       Object.keys(updatedAttributes).forEach(attr => {
         newSearchParams.set(attr, updatedAttributes[attr].join(','));
       });
-      
+
       searchParams.forEach((_, key) => {
         if (key !== 'category' && key !== 'title' && !updatedAttributes[key]) {
           newSearchParams.delete(key);
@@ -69,7 +67,7 @@ export const useAttributeFilter = ({
 
       return updatedAttributes;
     },
-    [searchParams, setSearchParams, onProductsUpdate, fetchProducts, getSelectedAttributesFromUrl]
+    [searchParams, setSearchParams, onProductsUpdate, fetchProducts, getSelectedAttributesFromUrl],
   );
 
   useEffect(() => {

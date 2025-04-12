@@ -141,7 +141,7 @@ export class AuthService {
   private getCookieOptions() {
     return {
       httpOnly: true,
-      domain: this.config.get<string>('SERVER_DOMAIN') || undefined,
+      domain: this.config.get<string>('SERVER_DOMAIN') ?? undefined,
       secure: process.env.NODE_ENV === 'prod',
       sameSite: 'strict' as const,
     };

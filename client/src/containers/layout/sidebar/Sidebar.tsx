@@ -45,7 +45,7 @@ const Sidebar: FC<SidebarProps> = ({ open, toggleDrawer, isAuth, handleCatalogBt
 
   return (
     <Drawer open={open} onClose={() => toggleDrawer(false)}>
-      <Box sx={{ width: 250 }} role="presentation">
+      <Box sx={{ width: 250 }}>
         <IconButton onClick={() => toggleDrawer(false)} sx={styles.iconBtn}>
           <CloseRoundedIcon />
         </IconButton>
@@ -67,7 +67,7 @@ const Sidebar: FC<SidebarProps> = ({ open, toggleDrawer, isAuth, handleCatalogBt
                 Catalog
               </Button>
             </ListItem>
-            {isAuth ||
+            {isAuth ??
               <ListItem>
                 <LoginButton
                   onClick={() => toggleDrawer(false)}

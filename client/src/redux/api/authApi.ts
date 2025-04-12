@@ -1,12 +1,11 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
+import { ThunkDispatch, UnknownAction } from '@reduxjs/toolkit';
 import { LoginFormValues, RegisterFormValues } from '~/types';
 import { userApi } from '~/redux/api/userApi';
-import { AccessToken } from '~/redux/api/types';
+import { AccessToken, error } from '~/redux/api/types';
 import { axiosBaseQuery } from '~/plugins/axiosBaseQuery';
 import { logout } from '~/redux/features/userSlice';
-import { ThunkDispatch, UnknownAction } from '@reduxjs/toolkit';
 import { RootState } from '~/redux/store';
-import { error } from '~/redux/api/types'
 
 export const authApi = createApi({
   reducerPath: 'authApi',

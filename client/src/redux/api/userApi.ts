@@ -1,8 +1,7 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
-import { User } from '~/redux/api/types';
+import { User, error } from '~/redux/api/types';
 import { setUser } from '~/redux/features/userSlice';
 import { axiosBaseQuery } from '~/plugins/axiosBaseQuery';
-import { error } from '~/redux/api/types'
 
 export const userApi = createApi({
   reducerPath: 'userApi',
