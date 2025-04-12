@@ -1,7 +1,13 @@
-export interface Product {
+export interface ProductMainFields {
   id: string
   title: string
   description: string
-  images: string[]
+  categoryId: string
+  productImages: Pick<ProductImages, 'url'>[]
   price: string
+}
+
+export interface ProductImages {
+  publicId: string
+  url: string
 }

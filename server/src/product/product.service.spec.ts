@@ -260,39 +260,6 @@ describe('ProductService', () => {
     });
   });
 
-  describe('getAll', () => {
-    it('should return paginated products', async () => {
-      const pageOptionsDto = plainToInstance(PageOptionsDto, {
-        page: 1,
-        take: 10,
-        orderBy: 'title',
-        order: 'asc',
-      });
-      const mockProducts = [
-        {
-          id: 'prod1',
-          title: 'Product 1',
-          price: '100',
-          productImages: [{ url: 'http://image1.url' }],
-        },
-      ];
-      prisma.products.findMany.mockResolvedValue(mockProducts);
-      prisma.products.count.mockResolvedValue(1);
-
-      const result = await service.getAll(pageOptionsDto);
-
-      expect(prisma.products.findMany).toHaveBeenCalledWith({
-        select: expect.any(Object),
-        where: {},
-        skip: 0,
-        take: 10,
-        orderBy: { title: 'asc' },
-      });
-      expect(result.data).toEqual(mockProducts);
-      expect(result.meta.itemCount).toBe(1);
-    });
-  });
-
   describe('searchProducts', () => {
     it('should return paginated products matching search query', async () => {
       const query = 'test';

@@ -43,7 +43,9 @@ export class ProductController {
 
   @Public()
   @Get()
-  async getAll(
+  async findProducts(
+    @Query('category') categoryId: string,
+    @Query('title') title: string,
     @Query(
       'page-options',
       new ParseJsonPipe(),
@@ -51,7 +53,10 @@ export class ProductController {
     )
     pageOptionsDto: PageOptionsDto,
   ) {
-    return this.productService.getAll(pageOptionsDto);
+    return this.productService.findProducts(
+      { categoryId, title },
+      pageOptionsDto,
+    );
   }
 
   @Public()
@@ -66,20 +71,6 @@ export class ProductController {
     pageOptionsDto: PageOptionsWithoutSortingDto,
   ) {
     return this.productService.searchProducts(query, pageOptionsDto);
-  }
-
-  @Public()
-  @Get('/search-by-category')
-  async getByCategory(
-    @Query('category') categoryId: string,
-    @Query(
-      'page-options',
-      new ParseJsonPipe(),
-      new QueryValidationPipe(PageOptionsDto),
-    )
-    pageOptionsDto: PageOptionsDto,
-  ) {
-    return this.productService.getByCategory(categoryId, pageOptionsDto);
   }
 
   @Public()

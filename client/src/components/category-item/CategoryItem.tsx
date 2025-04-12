@@ -5,7 +5,7 @@ import { ChevronRight } from '@mui/icons-material';
 import { styles } from '~/components/category-item/styles';
 import { useNavigate } from 'react-router-dom';
 import { FC } from 'react';
-import { guestRoutes } from '~/router/constants/guestRoutes';
+import { URLs } from '~/constants/request';
 
 type CategoryItemProps = {
   category: Category
@@ -18,7 +18,7 @@ const CategoryItem: FC<CategoryItemProps> = ({ category, onClick, closeModal }) 
   const handleClick = () => {
     if (category.parentId && !category.isGroup) {
       closeModal();
-      navigate(guestRoutes.products.searchByCategory(category.id));
+      navigate(URLs.product.search.byCategory + category.id);
     }
     onClick(category);
   };

@@ -93,6 +93,7 @@ export class ProductAttributesService {
           id: true,
           title: true,
           description: true,
+          categoryId: true,
           productImages: { select: { url: true } },
           price: true,
         },

@@ -80,11 +80,11 @@ const Header = () => {
           anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
           onClose={handleMenuClose}
         >
-          <MenuItem onClick={handleMenuClose}>
-            <Link to={myAccount.route}>{myAccount.text}</Link>
+          <MenuItem component={Link} to={myAccount.route} onClick={handleMenuClose}>
+            {myAccount.text}
           </MenuItem>
-          <MenuItem onClick={handleMenuClose}>
-            <Link to={addProduct.route}>{addProduct.text}</Link>
+          <MenuItem component={Link} to={addProduct.route} onClick={handleMenuClose}>
+            {addProduct.text}
           </MenuItem>
           <Divider />
           <MenuItem onClick={() => {
@@ -99,8 +99,8 @@ const Header = () => {
   };
 
   return (
-    <Container component='header'>
-      <AppBar sx={styles.header} component='div'>
+    <Container component="header">
+      <AppBar sx={styles.header} component="div">
         <Toolbar>
           <Box sx={styles.leftSection}>
             {!isTablet ? (

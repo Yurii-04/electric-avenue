@@ -17,8 +17,8 @@ import { Prisma, Products } from '@prisma/client';
 import { CloudinaryService } from '~/cloudinary/cloudinary.service';
 import {
   Image,
-  ProductMainFields,
   ProductWithAttributes,
+  ProductWithImages,
   ProductWithRelations,
 } from '~/product/types';
 import { MappedAttribute } from '~/product-attributes/types';
@@ -31,33 +31,6 @@ export class ProductService {
     private readonly cloudinary: CloudinaryService,
     private readonly productAttributes: ProductAttributesService,
   ) {}
-
-  private readonly selectedFields = {
-    id: true,
-    title: true,
-    description: true,
-    productImages: { select: { url: true } },
-    price: true,
-  };
-
-  private async getPaginatedProducts(
-    where: Prisma.ProductsWhereInput,
-    pageOptionsDto: PageOptionsDto,
-  ): Promise<PageDto<ProductMainFields>> {
-    const { skip, take, orderBy, order } = pageOptionsDto;
-    const [data, itemCount] = await Promise.all([
-      this.prisma.products.findMany({
-        select: this.selectedFields,
-        where,
-        skip,
-        take,
-        orderBy: { [orderBy]: order },
-      }),
-      this.prisma.products.count({ where }),
-    ]);
-    const pageMetaDto = new PageMetaDto({ pageOptionsDto, itemCount });
-    return new PageDto(data, pageMetaDto);
-  }
 
   private transformProduct(product: ProductWithRelations) {
     return {
@@ -209,10 +182,6 @@ export class ProductService {
     return this.transformProduct(product);
   }
 
-  async getAll(pageOptionsDto: PageOptionsDto) {
-    return this.getPaginatedProducts({}, pageOptionsDto);
-  }
-
   async searchProducts(
     query: string,
     pageOptionsDto: PageOptionsWithoutSortingDto,
@@ -241,12 +210,37 @@ export class ProductService {
     return new PageDto(data, pageMetaDto);
   }
 
-  async getByCategory(categoryId: string, pageOptionsDto: PageOptionsDto) {
+  async findProducts(
+    { categoryId, title }: Pick<Products, 'categoryId' | 'title'>,
+    pageOptionsDto: PageOptionsDto,
+  ): Promise<PageDto<ProductWithImages>> {
+    const { skip, take, orderBy, order } = pageOptionsDto;
+
     const where: Prisma.ProductsWhereInput = {
-      category: { id: categoryId },
+      ...(categoryId && { category: { id: categoryId } }),
+      ...(title && { title: { contains: title, mode: 'insensitive' } }),
     };
 
-    return this.getPaginatedProducts(where, pageOptionsDto);
+    const [data, itemCount] = await Promise.all([
+      this.prisma.products.findMany({
+        select: {
+          id: true,
+          title: true,
+          description: true,
+          categoryId: true,
+          productImages: { select: { url: true } },
+          price: true,
+        },
+        where,
+        skip,
+        take,
+        orderBy: { [orderBy]: order },
+      }),
+      this.prisma.products.count({ where }),
+    ]);
+
+    const pageMetaDto = new PageMetaDto({ pageOptionsDto, itemCount });
+    return new PageDto(data, pageMetaDto);
   }
 
   async deleteProduct(productId: string, userId: string) {

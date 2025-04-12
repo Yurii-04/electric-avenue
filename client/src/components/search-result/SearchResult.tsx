@@ -9,7 +9,7 @@ type SearchResultProps = {
 const SearchResult = ({ title, onClick }: SearchResultProps) =>
   <ListItem disablePadding>
     <ListItemButton onClick={onClick}>
-      <ListItemText>{title}</ListItemText>
+      <ListItemText primary={title} />
     </ListItemButton>
   </ListItem>;
 

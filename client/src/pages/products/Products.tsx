@@ -1,10 +1,10 @@
-import Typography from '@mui/material/Typography';
 import Container from '~/components/container/Container';
+import ProductsContainer from '~/containers/products/Products';
 
 const Products = () => {
   return (
     <Container>
-      <Typography>Products page</Typography>
+      <ProductsContainer />
     </Container>
   );
 };

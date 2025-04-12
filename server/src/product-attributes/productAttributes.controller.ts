@@ -21,7 +21,7 @@ export class ProductAttributesController {
   @Get('filter')
   @Public()
   async filterByAttributes(
-    @Query('attributes', new ParseJsonPipe()) query: FilterRequest,
+    @Query('attributes') query: FilterRequest,
     @Query(
       'page-options',
       new ParseJsonPipe(),

@@ -1,19 +1,23 @@
 import React, { FC } from 'react';
 import { List, ListItem, ListItemText, Skeleton } from '@mui/material';
 import SearchResult from '~/components/search-result/SearchResult';
-import { Product } from '~/types/products/interfaces/products.interfaces';
 import { styles } from './styles';
+import { useNavigate } from 'react-router-dom';
+import { URLs } from '~/constants/request';
+import { SearchResult as SearchResultType } from '~/types';
 
 type SearchResultsListProps = {
-  data: Pick<Product, 'title'>[];
+  data: SearchResultType;
   isLoading: boolean;
   setIsOpen: (isOpen: boolean) => void;
 }
 
 export const SearchResultsList: FC<SearchResultsListProps> = ({ data, isLoading, setIsOpen }) => {
+  const { data: titles } = data;
+  const navigate = useNavigate();
   const handleClick = (title: string) => {
     setIsOpen(false);
-    alert(`You selected ${title}`);
+    navigate(URLs.product.search.byTitle + title);
   };
 
   if (isLoading) {
@@ -28,12 +32,12 @@ export const SearchResultsList: FC<SearchResultsListProps> = ({ data, isLoading,
 
   return (
     <List sx={styles.resultsList}>
-      {data.length === 0 ? (
+      {titles.length === 0 ? (
           <ListItem>
-            <ListItemText>No results found</ListItemText>
+            <ListItemText secondary='No results found' />
           </ListItem>
         ) :
-        data.map((data) => (
+        titles.map((data) => (
           <SearchResult
             key={data.title}
             title={data.title}

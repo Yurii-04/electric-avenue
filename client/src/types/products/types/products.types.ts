@@ -1,4 +1,14 @@
-import { ApiResponse, Product } from '~/types';
+import { ApiResponse, ProductMainFields } from '~/types';
 
 export type SearchParams = { query?: string };
-export type ProductWithPagination = ApiResponse<Product>
+export type FindProductsParams = {
+  title?: string | null,
+  category?: string | null
+};
+export type ProductWithPagination = ApiResponse<ProductMainFields>
+export type SearchResult = ApiResponse<Pick<ProductMainFields, 'title'>>
+export type RelevantAttribute = {
+  name: string
+  attributeOptions: string[]
+}
+export type SelectedAttributes = Record<string, string[]>;

@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import { InputAdornment, TextField } from '@mui/material';
-import { ErrorResponse, Product, ProductWithPagination, SearchParams, snackbarVariants } from '~/types';
+import { ErrorResponse, SearchParams, SearchResult, snackbarVariants } from '~/types';
 import { useDebounce } from '~/hooks/use-debounce';
 import { useAxios } from '~/hooks/use-axios';
 import { productService } from '~/services/product-service';
@@ -14,13 +14,12 @@ import { SearchResultsList } from '~/components/search-bar-result-list/SearchRes
 
 const SearchBar = () => {
   const [input, setInput] = useState<string>('');
-  const [data, setData] = useState<Pick<Product, 'title'>[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const { isOpen, setIsOpen, containerRef } = useToggleVisibility<HTMLDivElement>();
   const { setAlert } = useSnackbarContext();
   const shouldShowList = isOpen && input.length > 0;
   const serviceFunction = useCallback(
-    (params?: SearchParams) => productService.searchProducts(params),
+    (params?: SearchParams) => productService.searchProductsTitles(params),
     [],
   );
 
@@ -31,11 +30,10 @@ const SearchBar = () => {
     });
   };
 
-  const { fetchData } = useAxios<ProductWithPagination, SearchParams>({
+  const { response: data, fetchData } = useAxios<SearchResult, SearchParams>({
     service: serviceFunction,
     defaultResponse: defaultProductResponse,
-    onResponse: (response) => {
-      setData(response.data);
+    onResponse: () => {
       setIsLoading(false);
     },
     onResponseError,
@@ -47,7 +45,6 @@ const SearchBar = () => {
   const handleChange = (value: string) => {
     setInput(value);
     if (value.trim() === '') {
-      setData([]);
       setIsLoading(false);
       return;
     }

@@ -4,10 +4,20 @@ export type ProductWithAttributes = Omit<Products, 'categoryId'> & {
   productAttributes: { key: string; value: string }[];
 };
 
-export type ProductMainFields = Pick<
-  Products,
-  'id' | 'title' | 'description' | 'price'
->;
+export type ProductWithImages = Prisma.ProductsGetPayload<{
+  select: {
+    id: true;
+    title: true;
+    description: true;
+    categoryId: true;
+    price: true;
+    productImages: {
+      select: {
+        url: true;
+      };
+    };
+  };
+}>;
 
 export type Image = {
   url: string;
