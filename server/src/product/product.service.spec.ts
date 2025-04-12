@@ -297,7 +297,7 @@ describe('ProductService', () => {
     });
   });
 
-  describe('getByCategory', () => {
+  describe('find products', () => {
     it('should return paginated products by category', async () => {
       const categoryId = 'cat123';
       const pageOptionsDto = plainToInstance(PageOptionsDto, {
@@ -317,7 +317,7 @@ describe('ProductService', () => {
       prisma.products.findMany.mockResolvedValue(mockProducts);
       prisma.products.count.mockResolvedValue(1);
 
-      const result = await service.getByCategory(categoryId, pageOptionsDto);
+      const result = await service.findProducts({ categoryId }, pageOptionsDto);
 
       expect(prisma.products.findMany).toHaveBeenCalledWith({
         select: expect.any(Object),
@@ -328,6 +328,46 @@ describe('ProductService', () => {
       });
       expect(result.data).toEqual(mockProducts);
       expect(result.meta.itemCount).toBe(1);
+    });
+
+    it('should return paginated products by title search', async () => {
+      const title = 'test product';
+      const pageOptionsDto = plainToInstance(PageOptionsDto, {
+        page: 1,
+        take: 10,
+        orderBy: 'title',
+        order: 'asc',
+      });
+      const mockProducts = [
+        {
+          id: 'prod1',
+          title: 'Test Product 1',
+          price: '100',
+          productImages: [{ url: 'http://image1.url' }],
+        },
+        {
+          id: 'prod2',
+          title: 'Test Product 2',
+          price: '200',
+          productImages: [{ url: 'http://image2.url' }],
+        },
+      ];
+      prisma.products.findMany.mockResolvedValue(mockProducts);
+      prisma.products.count.mockResolvedValue(2);
+
+      const result = await service.findProducts({ title }, pageOptionsDto);
+
+      expect(prisma.products.findMany).toHaveBeenCalledWith({
+        select: expect.any(Object),
+        where: {
+          title: { contains: title, mode: 'insensitive' },
+        },
+        skip: 0,
+        take: 10,
+        orderBy: { title: 'asc' },
+      });
+      expect(result.data).toEqual(mockProducts);
+      expect(result.meta.itemCount).toBe(2);
     });
   });
 

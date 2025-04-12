@@ -211,7 +211,7 @@ export class ProductService {
   }
 
   async findProducts(
-    { categoryId, title }: Pick<Products, 'categoryId' | 'title'>,
+    { categoryId, title }: Partial<Pick<Products, 'categoryId' | 'title'>>,
     pageOptionsDto: PageOptionsDto,
   ): Promise<PageDto<ProductWithImages>> {
     const { skip, take, orderBy, order } = pageOptionsDto;
