@@ -20,6 +20,10 @@ export const products = {
   name: 'Products page',
   path: guestRoutes.products.route
 }
+export const product = {
+  name: 'Product page',
+  path: guestRoutes.products.productRoute
+}
 
 export const myAccount = {
   name: 'My Account page',

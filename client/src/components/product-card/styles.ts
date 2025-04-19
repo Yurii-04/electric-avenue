@@ -9,6 +9,12 @@ export const styles = {
     border: '1px solid',
     borderColor: 'divider',
     cursor: 'pointer',
+    transition: '.3s',
+    '&:focus, &:hover': {
+      border: '1px solid',
+      outline: 'none',
+      borderColor: 'basic.turquoise',
+    }
   },
   image: {
     width: '100%',

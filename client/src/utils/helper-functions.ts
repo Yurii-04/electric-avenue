@@ -7,3 +7,25 @@ export const spliceSx = (
   ...defaultStyles,
   ...newStyles,
 }) as SxProps;
+
+const createQueryParamsString = (query: { [key: string]: string }) => {
+  const queryParams = new URLSearchParams()
+
+  Object.entries(query).forEach(([key, value]) => {
+    queryParams.append(key, value)
+  })
+
+  return queryParams.toString()
+}
+
+export const createUrlPath = (
+  URL: string,
+  params: string | null = '',
+  query = {}
+) => {
+  const queryParams = createQueryParamsString(query)
+  const queryParamsString = queryParams ? `?${queryParams}` : ''
+  const paramsString = params ? `/${params}` : ''
+
+  return `${URL}${paramsString}${queryParamsString}`
+}

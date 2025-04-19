@@ -1,6 +1,6 @@
-import { ProductWithPagination } from '~/types';
+import { Product } from '~/types';
 
-export const defaultProductResponse: ProductWithPagination = {
+export const defaultResponse = {
   data: [],
   meta: {
     page: 1,
@@ -10,4 +10,17 @@ export const defaultProductResponse: ProductWithPagination = {
     hasPreviousPage: false,
     hasNextPage: false,
   },
+};
+
+export const defaultProductResponse: Product = {
+  id: '',
+  sellerId: '',
+  description: '',
+  productImages: [],
+  productAttributes: [],
+  createdAt: '',
+  updatedAt: '',
+  category: '',
+  price: '',
+  title: '',
 };

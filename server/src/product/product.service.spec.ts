@@ -220,7 +220,7 @@ describe('ProductService', () => {
     it('should return a product with attributes', async () => {
       const productId = 'prod123';
       const mockProduct = {
-        id: 'prod123',
+        id: productId,
         title: 'Test Product',
         description: 'Test desc',
         price: '100',
@@ -237,11 +237,11 @@ describe('ProductService', () => {
 
       expect(prisma.products.findUnique).toHaveBeenCalledWith({
         where: { id: productId },
-        omit: { categoryId: true },
+        omit: { categoryId: true, sellerId: true },
         include: expect.any(Object),
       });
       expect(result).toEqual({
-        id: 'prod123',
+        id: productId,
         title: 'Test Product',
         description: 'Test desc',
         price: '100',
@@ -463,6 +463,7 @@ describe('ProductService', () => {
 
       expect(prisma.products.update).toHaveBeenCalledWith({
         where: { id: productId },
+        omit: { categoryId: true, sellerId: true },
         data: expect.objectContaining({
           title: 'Updated Product',
           categoryId: 'cat123',

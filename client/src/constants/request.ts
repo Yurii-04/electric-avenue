@@ -8,7 +8,7 @@ export const URLs = {
     attributes: {
       getRelevant: '/product-attributes?',
       filter: '/product-attributes/filter?',
-    }
+    },
   },
   categories: {
     get: '/categories',

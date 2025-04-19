@@ -4,7 +4,7 @@ import { Box, Typography } from '@mui/material';
 import ProductCard from '~/components/product-card/ProductCard';
 import { useAxios } from '~/hooks/use-axios';
 import { productService } from '~/services/product-service';
-import { defaultProductResponse } from '~/constants/response';
+import { defaultResponse } from '~/constants/response';
 import { ErrorResponse, FindProductsParams, ProductWithPagination, snackbarVariants } from '~/types';
 import { useSnackbarContext } from '~/context/snackbar';
 import { styles } from '~/containers/products/styles';
@@ -17,7 +17,7 @@ const Products = () => {
   const [searchParams] = useSearchParams();
   const category = searchParams.get('category');
   const title = searchParams.get('title');
-  const [products, setProducts] = useState<ProductWithPagination>(defaultProductResponse);
+  const [products, setProducts] = useState<ProductWithPagination>(defaultResponse);
   
   const onResponseError = useCallback((error: ErrorResponse) => {
     setAlert({
@@ -36,7 +36,7 @@ const Products = () => {
       () => productService.findProducts(getSearchParams()),
       [getSearchParams]
     ),
-    defaultResponse: defaultProductResponse,
+    defaultResponse: defaultResponse,
     onResponseError,
     onResponse: useCallback((responseData: ProductWithPagination) => {
       setProducts(responseData);

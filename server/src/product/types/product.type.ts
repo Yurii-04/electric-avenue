@@ -1,8 +1,18 @@
 import { Prisma, Products } from '@prisma/client';
 
-export type ProductWithAttributes = Omit<Products, 'categoryId'> & {
+export interface ProductWithAttributes
+  extends Omit<Products, 'categoryId' | 'sellerId'> {
   productAttributes: { key: string; value: string }[];
-};
+  seller: Prisma.UsersGetPayload<{
+    select: {
+      id: true;
+      firstName: true;
+      lastName: true;
+      createdAt: true;
+      photo: true;
+    };
+  }>;
+}
 
 export type ProductWithImages = Prisma.ProductsGetPayload<{
   select: {
@@ -28,6 +38,15 @@ export type ProductWithRelations = Prisma.ProductsGetPayload<{
   include: {
     category: { select: { name: true } };
     productImages: { select: { url: true; publicId: true } };
+    seller: {
+      select: {
+        id: true;
+        firstName: true;
+        lastName: true;
+        createdAt: true;
+        photo: true;
+      };
+    };
     productAttributes: {
       select: {
         attribute: { select: { name: true } };
@@ -35,7 +54,5 @@ export type ProductWithRelations = Prisma.ProductsGetPayload<{
       };
     };
   };
-  omit: {
-    categoryId: true;
-  };
+  omit: { categoryId: true; sellerId: true };
 }>;

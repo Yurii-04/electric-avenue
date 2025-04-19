@@ -1,13 +1,13 @@
-import { Swiper, SwiperSlide } from 'swiper/react';
-import 'swiper/css';
-import './style.css'
-import 'swiper/css/pagination';
-import { Pagination, Autoplay } from 'swiper/modules';
-import { AccordionItem } from '~/types';
 import { FC } from 'react';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Pagination, Autoplay } from 'swiper/modules';
+import 'swiper/css';
+import 'swiper/css/pagination';
 import { Box } from '@mui/material';
 import Typography from '@mui/material/Typography';
 import { styles } from '~/components/carousel/styles';
+import { AccordionItem } from '~/types';
+import './style.css'
 
 interface CarouselProps {
   items: AccordionItem[];

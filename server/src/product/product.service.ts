@@ -105,7 +105,7 @@ export class ProductService {
     dto: CreateProductDto,
     userId: string,
     files: Express.Multer.File[],
-  ): Promise<ProductWithAttributes> {
+  ) {
     const { categoryId, attributes, ...data } = dto;
     await this.validateCategory(categoryId);
     const mappedAttributes = await this.productAttributes.mapProductAttributes(
@@ -115,7 +115,7 @@ export class ProductService {
     const { uploadedImages } = await this.handleProductImages([], files);
 
     try {
-      const result = await this.prisma.$transaction(async (prisma) => {
+      const product = await this.prisma.$transaction(async (prisma) => {
         const product = await prisma.products.create({
           data: {
             ...data,
@@ -138,23 +138,10 @@ export class ProductService {
           })),
         });
 
-        return prisma.products.findUnique({
-          where: { id: product.id },
-          omit: { categoryId: true },
-          include: {
-            category: { select: { name: true } },
-            productImages: { select: { url: true, publicId: true } },
-            productAttributes: {
-              select: {
-                attribute: { select: { name: true } },
-                optionValue: { select: { value: true } },
-              },
-            },
-          },
-        });
+        return product;
       });
 
-      return this.transformProduct(result);
+      return this.getById(product.id);
     } catch (error) {
       console.error(error);
       await this.cleanupImages(uploadedImages.map((img) => img.publicId));
@@ -165,10 +152,19 @@ export class ProductService {
   async getById(productId: string): Promise<ProductWithAttributes> {
     const product = await this.prisma.products.findUnique({
       where: { id: productId },
-      omit: { categoryId: true },
+      omit: { categoryId: true, sellerId: true },
       include: {
         category: { select: { name: true } },
         productImages: { select: { url: true, publicId: true } },
+        seller: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            createdAt: true,
+            photo: true,
+          },
+        },
         productAttributes: {
           select: {
             attribute: { select: { name: true } },
@@ -319,9 +315,19 @@ export class ProductService {
                 }
               : undefined,
           },
+          omit: { categoryId: true, sellerId: true },
           include: {
-            productImages: true,
+            productImages: { select: { url: true, publicId: true } },
             category: true,
+            seller: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+                createdAt: true,
+                photo: true,
+              },
+            },
             productAttributes: {
               include: {
                 attribute: true,

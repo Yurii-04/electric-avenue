@@ -23,7 +23,7 @@ export const SearchResultsList: FC<SearchResultsListProps> = ({ data, isLoading,
   if (isLoading) {
     return (
       <List sx={styles.resultsList}>
-        {Array.from({ length: 5 }).map((_, i) => (
+        {Array.from({ length: 5 }, (_, i) => (
           <Skeleton key={i} variant="rectangular" height={24} sx={{ mb: 1 }} />
         ))}
       </List>
@@ -34,7 +34,7 @@ export const SearchResultsList: FC<SearchResultsListProps> = ({ data, isLoading,
     <List sx={styles.resultsList}>
       {titles.length === 0 ? (
           <ListItem>
-            <ListItemText secondary='No results found' />
+            <ListItemText secondary="No results found" />
           </ListItem>
         ) :
         titles.map((data) => (

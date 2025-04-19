@@ -22,6 +22,7 @@ export const guestRoutes = {
     route: '/products',
     path: '/products',
     search:'/products/search?',
+    productRoute : '/products/:id',
   },
   error: {
     route: 'error',

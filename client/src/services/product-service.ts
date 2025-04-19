@@ -2,12 +2,14 @@ import { axiosClient } from '~/plugins/axios-client';
 import { URLs } from '~/constants/request';
 import {
   FindProductsParams,
+  Product,
   ProductWithPagination,
   RelevantAttribute,
   SearchParams,
   SelectedAttributes,
 } from '~/types';
 import { AxiosResponse } from 'axios';
+import { createUrlPath } from '~/utils/helper-functions';
 
 class ProductService {
   async searchProductsTitles(params?: SearchParams): Promise<AxiosResponse<ProductWithPagination>> {
@@ -24,6 +26,10 @@ class ProductService {
 
   async filterByAttributes(attributes: SelectedAttributes): Promise<AxiosResponse<ProductWithPagination>> {
     return axiosClient.get(URLs.product.attributes.filter, { params: { attributes } });
+  }
+
+  async getById(id: string): Promise<AxiosResponse<Product>> {
+    return axiosClient.get(createUrlPath(URLs.product.get, id))
   }
 }
 
