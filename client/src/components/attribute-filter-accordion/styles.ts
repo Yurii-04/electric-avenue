@@ -25,4 +25,4 @@ export const styles = {
   attributeTitle: {
     fontWeight: 'medium',
   },
-};
+}; 

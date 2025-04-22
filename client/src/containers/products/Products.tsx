@@ -10,7 +10,6 @@ import { useSnackbarContext } from '~/context/snackbar';
 import { styles } from '~/containers/products/styles';
 import ProductAttributes from '~/containers/product-attributes/ProductAttributes';
 import Loader from '~/components/loader/Loader';
-import './style.css';
 
 const Products = () => {
   const { setAlert } = useSnackbarContext();

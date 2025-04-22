@@ -11,11 +11,6 @@ export const favorites = {
   path: guestRoutes.navBar.favorites.route
 }
 
-export const cart = {
-  name: 'Cart page',
-  path: guestRoutes.navBar.cart.route
-}
-
 export const products = {
   name: 'Products page',
   path: guestRoutes.products.route

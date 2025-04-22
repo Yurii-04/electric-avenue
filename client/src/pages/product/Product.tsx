@@ -17,7 +17,7 @@ const Product = () => {
   }, [id, navigate]);
 
   return (
-    <Container>
+    <Container sx={{ flex: 1 }}>
       <Button
         size="small"
         startIcon={<ArrowBackIosNewRoundedIcon />}

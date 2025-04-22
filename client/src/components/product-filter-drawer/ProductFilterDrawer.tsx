@@ -2,8 +2,9 @@ import { FC } from 'react';
 import { Button, Drawer } from '@mui/material';
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import { RelevantAttribute, SelectedAttributes } from '~/types';
-import ProductAttributeItem from '~/components/product-attribute-item/ProductAttributeItem';
+import AttributeFilterAccordion from '~/components/attribute-filter-accordion/AttributeFilterAccordion';
 import { styles } from '~/components/product-filter-drawer/styles';
+import { AttributeFilterSkeleton } from '~/components/attribute-filter-skeleton/AttributeFilterSkeleton';
 
 interface ProductFilterDrawerProps {
   open: boolean;
@@ -11,6 +12,7 @@ interface ProductFilterDrawerProps {
   attributes: RelevantAttribute[];
   selectedAttributes: SelectedAttributes;
   onAttributeChange: (attributeName: string, option: string, checked: boolean) => void;
+  loading: boolean;
 }
 
 export const ProductFilterDrawer: FC<ProductFilterDrawerProps> = (
@@ -20,6 +22,7 @@ export const ProductFilterDrawer: FC<ProductFilterDrawerProps> = (
     attributes,
     selectedAttributes,
     onAttributeChange,
+    loading,
   }) => {
   return (
     <>
@@ -27,20 +30,24 @@ export const ProductFilterDrawer: FC<ProductFilterDrawerProps> = (
         sx={styles.filterBtn}
         onClick={() => setIsDrawerOpen(true)}
         variant="contained"
-        size="large"
+        size="medium"
         endIcon={<FilterAltIcon />}
       >
         Filters
       </Button>
       <Drawer open={open} onClose={() => setIsDrawerOpen(false)}>
-        {attributes.map((attribute) => (
-          <ProductAttributeItem
-            key={attribute.name}
-            attribute={attribute}
-            onChange={onAttributeChange}
-            selectedAttributes={selectedAttributes}
-          />
-        ))}
+        {loading ? (
+          <AttributeFilterSkeleton sx={{ width: 280, p: 2 }} />
+        ) : (
+          attributes.map((attribute) => (
+            <AttributeFilterAccordion
+              key={attribute.name}
+              attribute={attribute}
+              onChange={onAttributeChange}
+              selectedAttributes={selectedAttributes}
+            />
+          ))
+        )}
       </Drawer>
     </>
   );

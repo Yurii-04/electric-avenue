@@ -1,40 +1,39 @@
 import { theme } from '~/styles/app-theme';
+import { borderDivider } from '~/styles/common-styles/common-styles';
 
 export const styles = {
   card: {
     maxWidth: '500px',
-    height: '440px',
     backgroundColor: '#fff',
-    borderRadius: '6px',
-    border: '1px solid',
-    borderColor: 'divider',
+    ...borderDivider,
     cursor: 'pointer',
     transition: '.3s',
+    p: 2,
     '&:focus, &:hover': {
       border: '1px solid',
       outline: 'none',
       borderColor: 'basic.turquoise',
-    }
+    },
   },
   image: {
     width: '100%',
-    height: '300px',
-    objectFit: 'cover',
+    height: { xs: '210px', sm: '300px' },
+    objectFit: 'scale-down',
     backgroundColor: '#fff',
     borderRadius: '6px 6px 0 0',
-    p: 2,
   },
   title: {
-    whiteSpace: 'normal',
-    overflowWrap: 'break-word',
-    height: '40px',
+    display: '-webkit-box',
+    WebkitLineClamp: 2,
+    WebkitBoxOrient: 'vertical',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    wordBreak: 'break-all',
+    height: '39px',
   },
   descriptionWrapper: {
-    p: 2,
-    '& > .MuiBox-root': {
-      mt: 2,
-      display: 'flex',
-      justifyContent: 'space-between',
+    '& > .price': {
+      mt: 1,
     },
   },
   iconWrapper: {
@@ -46,9 +45,10 @@ export const styles = {
     justifyContent: 'center',
     alignItems: 'center',
     mt: 2,
+    ml: 'auto',
     transition: '.5s',
-    '&:hover': {
+    '&:hover, &:focus': {
       backgroundColor: theme.palette.success.dark,
-    }
+    },
   },
 };

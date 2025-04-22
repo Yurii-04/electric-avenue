@@ -14,7 +14,13 @@ export const defaultResponse = {
 
 export const defaultProductResponse: Product = {
   id: '',
-  sellerId: '',
+  seller: {
+    id: '',
+    firstName: '',
+    lastName: '',
+    createdAt: '',
+    photo: ''
+  },
   description: '',
   productImages: [],
   productAttributes: [],

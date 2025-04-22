@@ -1,14 +1,14 @@
-import { Typography, Paper, useMediaQuery } from '@mui/material';
+import { Paper, useMediaQuery } from '@mui/material';
 import { FC, useCallback, useState } from 'react';
 import { useAxios } from '~/hooks/use-axios';
 import { productService } from '~/services/product-service';
 import { RelevantAttribute, ProductWithPagination, FindProductsParams } from '~/types';
 import { useAttributeFilter } from '~/hooks/useAttributeFilter';
-import Loader from '~/components/loader/Loader';
-import ProductAttributeItem from '~/components/product-attribute-item/ProductAttributeItem';
+import AttributeFilterAccordion from '~/components/attribute-filter-accordion/AttributeFilterAccordion';
 import { ProductFilterDrawer } from '~/components/product-filter-drawer/ProductFilterDrawer';
 import { styles } from '~/containers/product-attributes/styles';
 import { theme } from '~/styles/app-theme';
+import { AttributeFilterSkeleton } from '~/components/attribute-filter-skeleton/AttributeFilterSkeleton';
 
 interface ProductAttributesProps {
   categoryIds: string[];
@@ -27,41 +27,33 @@ const ProductAttributes: FC<ProductAttributesProps> = (
 
   const { selectedAttributes, handleAttributeChange } = useAttributeFilter({
     onProductsUpdate: setProducts,
-    fetchProducts
+    fetchProducts,
   });
 
-  const { response: attributes, loading: attributesLoading } = useAxios<RelevantAttribute[], string[]>({
+  const { response, loading } = useAxios<RelevantAttribute[], string[]>({
     service: useCallback(() => productService.getRelevantAttributes(categoryIds), [categoryIds]),
     defaultResponse: [],
   });
-  if (attributesLoading) {
-    return <Loader />;
-  }
-
-  if (!attributes.length) {
-    return (
-      <Typography variant="body1">
-        No attributes available for this category
-      </Typography>
-    );
-  }
 
   if (isTablet) {
     return (
       <ProductFilterDrawer
         open={isDrawerOpen}
         setIsDrawerOpen={setIsDrawerOpen}
-        attributes={attributes}
+        attributes={response}
         selectedAttributes={selectedAttributes}
         onAttributeChange={handleAttributeChange}
+        loading={loading}
       />
     );
   }
 
+  if (loading) return <AttributeFilterSkeleton sx={styles.paper} />;
+
   return (
     <Paper elevation={0} sx={styles.paper}>
-      {attributes.map((attribute) => (
-        <ProductAttributeItem
+      {response.map((attribute) => (
+        <AttributeFilterAccordion
           key={attribute.name}
           attribute={attribute}
           onChange={handleAttributeChange}

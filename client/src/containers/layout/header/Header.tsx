@@ -38,7 +38,7 @@ const Header = () => {
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const [drawerOpen, setDrawerOpen] = useState<boolean>(false);
   const { closeModal, openModal } = useModalContext();
-  const { myAccount, addProduct, favorites, cart } = authRoutes.navBar;
+  const { myAccount, addProduct, favorites } = authRoutes.navBar;
 
   const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -134,7 +134,6 @@ const Header = () => {
           <Box sx={styles.lastSection}>
             <Box sx={styles.iconsWrapper}>
               <IconButton component={Link} to={favorites.route}>{favorites.icon}</IconButton>
-              <IconButton component={Link} to={cart.route}>{cart.icon}</IconButton>
             </Box>
             {renderLastSection()}
           </Box>

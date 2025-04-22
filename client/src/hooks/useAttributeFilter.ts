@@ -10,10 +10,11 @@ interface UseAttributeFilterProps {
 
 const EXCLUDED_PARAMS = ['category', 'title'];
 
-export const useAttributeFilter = ({
-                                     onProductsUpdate,
-                                     fetchProducts,
-                                   }: UseAttributeFilterProps) => {
+export const useAttributeFilter = (
+  {
+    onProductsUpdate,
+    fetchProducts,
+  }: UseAttributeFilterProps) => {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const getSelectedAttributesFromUrl = useCallback((): SelectedAttributes => {

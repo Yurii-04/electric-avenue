@@ -25,7 +25,11 @@ const Product: FC<ProductProps> = ({ id }) => {
   });
 
   if (loading) {
-    return <Loader />;
+    return (
+      <Box sx={{ display: 'flex', minHeight: 'calc(100vh - 200px)', alignItems: 'center', justifyContent: 'center' }}>
+        <Loader pageLoad />
+      </Box>
+    );
   }
 
   return (
