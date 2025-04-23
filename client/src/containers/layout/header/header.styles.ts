@@ -1,5 +1,5 @@
 import { mainShadow } from '~/styles/app-theme';
-import { commonStyles } from '~/styles/common-styles/common-styles';
+import { alignItemsCenter } from '~/styles/common-styles/common-styles';
 
 export const styles = {
   header: {
@@ -10,7 +10,7 @@ export const styles = {
     height: '50px',
     boxShadow: mainShadow,
     position: 'static',
-    ...commonStyles.alignItemsCenter,
+    ...alignItemsCenter,
     flexDirection: 'row',
     '& .MuiToolbar-root': {
       width: '100%',
@@ -22,11 +22,11 @@ export const styles = {
     },
   },
   leftSection: {
-    ...commonStyles.alignItemsCenter,
+    ...alignItemsCenter,
     '& img': {
       width: '120px',
       marginRight: { md: '20px' },
-      display: {xs: 'none', md: 'inline-block'},
+      display: { xs: 'none', md: 'inline-block' },
     },
   },
   centerSection: {
@@ -38,12 +38,12 @@ export const styles = {
     },
   },
   lastSection: {
-    ...commonStyles.alignItemsCenter,
-    display: {xs: 'none', sm: 'flex'},
+    ...alignItemsCenter,
+    display: { xs: 'none', sm: 'flex' },
     justifyContent: 'center',
   },
   iconsWrapper: {
-    ...commonStyles.alignItemsCenter,
+    ...alignItemsCenter,
     gap: '20px',
     marginX: '15px',
     '& MuiSvgIcon-root': {
@@ -51,7 +51,7 @@ export const styles = {
     },
   },
   profileIcon: {
-    ...commonStyles.alignItemsCenter,
+    ...alignItemsCenter,
     justifyContent: 'center',
   },
 } as const;

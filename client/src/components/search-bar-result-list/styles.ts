@@ -1,5 +1,6 @@
 import { commonShadow } from '~/styles/app-theme';
 import { appScrollbar } from '~/styles/app-theme/app.scrollbar';
+import { textClampStyle } from '~/styles/common-styles/common-styles';
 
 export const styles = {
   resultsList: {
@@ -15,5 +16,8 @@ export const styles = {
     paddingX: '15px',
     borderRadius: '5px',
     width: '100%',
-  }
-}
+    '& .MuiTypography-body1': {
+      ...textClampStyle,
+    },
+  },
+};

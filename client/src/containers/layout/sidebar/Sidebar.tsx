@@ -2,7 +2,7 @@ import * as React from 'react';
 import { cloneElement, FC, JSX } from 'react';
 import { Box, Button, Divider, Drawer, IconButton, List, ListItem, ListItemButton, ListItemText } from '@mui/material';
 import GridViewOutlinedIcon from '@mui/icons-material/GridViewOutlined';
-import { commonStyles } from '~/styles/common-styles/common-styles';
+import { alignItemsCenter } from '~/styles/common-styles/common-styles';
 import { authRoutes } from '~/router/constants/authRoutes';
 import { guestRoutes } from '~/router/constants/guestRoutes';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
@@ -30,7 +30,7 @@ const Sidebar: FC<SidebarProps> = ({ open, toggleDrawer, isAuth, handleCatalogBt
       {arr.map(({ icon, text, route }, index) => (
         <ListItem key={index} disablePadding>
           <ListItemButton
-            sx={commonStyles.alignItemsCenter}
+            sx={alignItemsCenter}
             onClick={() => toggleDrawer(false)}
             component={Link}
             to={route}

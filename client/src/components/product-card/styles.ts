@@ -1,5 +1,5 @@
 import { theme } from '~/styles/app-theme';
-import { borderDivider } from '~/styles/common-styles/common-styles';
+import { borderDivider, textClampStyle } from '~/styles/common-styles/common-styles';
 
 export const styles = {
   card: {
@@ -23,12 +23,7 @@ export const styles = {
     borderRadius: '6px 6px 0 0',
   },
   title: {
-    display: '-webkit-box',
-    WebkitLineClamp: 2,
-    WebkitBoxOrient: 'vertical',
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    wordBreak: 'break-all',
+    ...textClampStyle,
     height: '39px',
   },
   descriptionWrapper: {
