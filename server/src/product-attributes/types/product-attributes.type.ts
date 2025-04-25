@@ -8,4 +8,4 @@ export type RelevantAttributes = {
   attributeOptions: string[];
 };
 
-export type FilterRequest = Record<string, string | string[]>;
+export type FilterRequest = Record<string, string[]>;

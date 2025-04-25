@@ -17,7 +17,6 @@ const Products = () => {
   const category = searchParams.get('category');
   const title = searchParams.get('title');
   const [products, setProducts] = useState<ProductWithPagination>(defaultResponse);
-  
   const onResponseError = useCallback((error: ErrorResponse) => {
     setAlert({
       severity: snackbarVariants.Error,

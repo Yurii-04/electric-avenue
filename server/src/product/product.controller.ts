@@ -16,7 +16,6 @@ import { ProductService } from './product.service';
 import { CreateProductDto, UpdateProductDto } from '~/product/dto';
 import { GetCurrentUserId, Public } from '~/common/decorators';
 import { PageOptionsDto, PageOptionsWithoutSortingDto } from '~/common/dtos';
-import { ParseJsonPipe, QueryValidationPipe } from '~/common/pipes';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { FilesValidationPipe } from '~/common/pipes/files-validation.pipe';
 
@@ -46,12 +45,7 @@ export class ProductController {
   async findProducts(
     @Query('category') categoryId: string,
     @Query('title') title: string,
-    @Query(
-      'page-options',
-      new ParseJsonPipe(),
-      new QueryValidationPipe(PageOptionsDto),
-    )
-    pageOptionsDto: PageOptionsDto,
+    @Query('page-options') pageOptionsDto: PageOptionsDto,
   ) {
     return this.productService.findProducts(
       { categoryId, title },
@@ -63,12 +57,7 @@ export class ProductController {
   @Get('/search')
   async searchProducts(
     @Query('query') query: string,
-    @Query(
-      'page-options',
-      new ParseJsonPipe(),
-      new QueryValidationPipe(PageOptionsWithoutSortingDto),
-    )
-    pageOptionsDto: PageOptionsWithoutSortingDto,
+    @Query('page-options') pageOptionsDto: PageOptionsWithoutSortingDto,
   ) {
     return this.productService.searchProducts(query, pageOptionsDto);
   }

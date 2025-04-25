@@ -74,13 +74,14 @@ export class ProductAttributesService {
       throw new BadRequestException('Attributes filter cannot be empty');
     }
 
+    const { skip, take, orderBy, order } = pageOptionsDto;
     const where: Prisma.ProductsWhereInput = {
       AND: Object.entries(attributes).map(([name, value]) => ({
         productAttributes: {
           some: {
             attribute: { name },
             optionValue: {
-              value: Array.isArray(value) ? { in: value } : value,
+              value: { in: value },
             },
           },
         },
@@ -98,6 +99,9 @@ export class ProductAttributesService {
           price: true,
         },
         where,
+        skip,
+        take,
+        orderBy: { [orderBy]: order },
       }),
       this.prisma.products.count({ where }),
     ]);
