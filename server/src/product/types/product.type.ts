@@ -56,3 +56,5 @@ export type ProductWithRelations = Prisma.ProductsGetPayload<{
   };
   omit: { categoryId: true; sellerId: true };
 }>;
+
+export type FilterRequest = Record<string, string[]>;

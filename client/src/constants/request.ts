@@ -12,5 +12,6 @@ export const URLs = {
   },
   categories: {
     get: '/categories',
+    getChildren: '/categories/children',
   },
 }

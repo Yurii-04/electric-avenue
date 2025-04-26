@@ -8,4 +8,16 @@ export class CategoryService {
   async getAllCategories() {
     return this.prisma.categories.findMany();
   }
+
+  async getChildCategories() {
+    return this.prisma.categories.findMany({
+      where: {
+        parentId: { not: null },
+        OR: [{ isGroup: false }, { isGroup: null }],
+      },
+      orderBy: {
+        name: 'asc',
+      },
+    });
+  }
 }

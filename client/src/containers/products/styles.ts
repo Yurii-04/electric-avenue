@@ -1,10 +1,15 @@
 export const styles = {
-  container: {
-    display: { xs: 'block', md: 'flex' },
-    justifyContent: 'space-between',
-    mb: 1,
-  },
   wrapper: {
+    my: 1,
+  },
+  container: {
+    display: 'flex',
+    flexDirection: { xs: 'column', md: 'row' },
+    gap: { xs: 2, md: 0 },
+    mt: 2,
+    justifyContent: 'space-between',
+  },
+  productsWrapper: {
     width: '100%',
     display: 'grid',
     gridTemplateColumns: {

@@ -20,7 +20,7 @@ class ProductService {
     return axiosClient.get(URLs.product.get, { params });
   }
 
-  async getRelevantAttributes(categoryIds: string[]): Promise<AxiosResponse<RelevantAttribute[]>> {
+  async getRelevantAttributes(categoryIds: string[] = []): Promise<AxiosResponse<RelevantAttribute[]>> {
     return axiosClient.get(URLs.product.attributes.getRelevant, { params: { categoryIds } });
   }
 

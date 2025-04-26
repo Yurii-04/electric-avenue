@@ -18,6 +18,7 @@ import { GetCurrentUserId, Public } from '~/common/decorators';
 import { PageOptionsDto, PageOptionsWithoutSortingDto } from '~/common/dtos';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { FilesValidationPipe } from '~/common/pipes/files-validation.pipe';
+import { FilterRequest } from '~/product/types';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
 
@@ -45,10 +46,12 @@ export class ProductController {
   async findProducts(
     @Query('category') categoryId: string,
     @Query('title') title: string,
+    @Query('attributes') attributes: FilterRequest,
     @Query('page-options') pageOptionsDto: PageOptionsDto,
   ) {
     return this.productService.findProducts(
       { categoryId, title },
+      attributes,
       pageOptionsDto,
     );
   }

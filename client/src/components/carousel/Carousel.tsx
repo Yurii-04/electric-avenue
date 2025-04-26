@@ -7,7 +7,6 @@ import { Box } from '@mui/material';
 import Typography from '@mui/material/Typography';
 import { styles } from '~/components/carousel/styles';
 import { AccordionItem } from '~/types';
-import './style.css'
 
 interface CarouselProps {
   items: AccordionItem[];

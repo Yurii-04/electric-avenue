@@ -11,4 +11,10 @@ export class CategoryController {
   async getAllCategories() {
     return this.categoryService.getAllCategories();
   }
+
+  @Public()
+  @Get('/children')
+  async getChildCategories() {
+    return this.categoryService.getChildCategories();
+  }
 }

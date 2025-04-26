@@ -1,4 +1,4 @@
-import React, { FC, memo } from 'react';
+import React, { FC } from 'react';
 import {
   Typography,
   Accordion,
@@ -9,21 +9,31 @@ import {
   Checkbox,
 } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { RelevantAttribute, SelectedAttributes } from '~/types';
+import { RelevantAttribute } from '~/types';
 import { styles } from '~/components/attribute-filter-accordion/styles';
+import { useSearchParams } from 'react-router-dom';
 
-interface AttributeFilterAccordionProps {
+type AttributeFilterAccordionProps = {
   attribute: RelevantAttribute;
-  onChange: (attributeName: string, option: string, checked: boolean) => void;
-  selectedAttributes: SelectedAttributes;
 }
 
-const AttributeFilterAccordion: FC<AttributeFilterAccordionProps> = memo((
-  {
-    attribute,
-    onChange,
-    selectedAttributes,
-  }) => {
+const AttributeFilterAccordion: FC<AttributeFilterAccordionProps> = ({ attribute }) => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>, attributeName: string) => {
+    const { checked, name: optionValue } = e.target;
+    if (checked) {
+      searchParams.append(`attributes[${attributeName}][]`, optionValue);
+    } else {
+      const currentParams = searchParams.getAll(`attributes[${attributeName}][]`) || [];
+      searchParams.delete(`attributes[${attributeName}][]`);
+      currentParams.forEach(param => {
+        if (param !== optionValue) {
+          searchParams.append(`attributes[${attributeName}][]`, param);
+        }
+      });
+    }
+    setSearchParams(searchParams);
+  };
   return (
     <Accordion defaultExpanded sx={styles.accordion}>
       <AccordionSummary
@@ -43,8 +53,9 @@ const AttributeFilterAccordion: FC<AttributeFilterAccordionProps> = memo((
                 <Checkbox
                   sx={styles.checkbox}
                   size="small"
-                  onChange={(event) => onChange(attribute.name, option, event.target.checked)}
-                  checked={selectedAttributes[attribute.name]?.includes(option) ?? false}
+                  name={option}
+                  onChange={(e) => handleChange(e, attribute.name)}
+                  checked={searchParams.getAll(`attributes[${attribute.name}][]`).includes(option)}
                 />
               }
               label={
@@ -58,8 +69,6 @@ const AttributeFilterAccordion: FC<AttributeFilterAccordionProps> = memo((
       </AccordionDetails>
     </Accordion>
   );
-});
+};
 
-AttributeFilterAccordion.displayName = 'AttributeFilterAccordion';
-
-export default AttributeFilterAccordion; 
+export default AttributeFilterAccordion;

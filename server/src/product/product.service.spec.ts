@@ -9,7 +9,12 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
-import { PageOptionsDto, PageOptionsWithoutSortingDto } from '~/common/dtos';
+import {
+  PageDto,
+  PageMetaDto,
+  PageOptionsDto,
+  PageOptionsWithoutSortingDto,
+} from '~/common/dtos';
 import { CreateProductDto } from '~/product/dto';
 import { ProductAttributesService } from '~/product-attributes/productAttributes.service';
 
@@ -311,23 +316,45 @@ describe('ProductService', () => {
           id: 'prod1',
           title: 'Product 1',
           price: '100',
+          categoryId: 'cat123',
           productImages: [{ url: 'http://image1.url' }],
+          description: 'Description 1',
         },
       ];
-      prisma.products.findMany.mockResolvedValue(mockProducts);
-      prisma.products.count.mockResolvedValue(1);
+      const itemCount = 1;
 
-      const result = await service.findProducts({ categoryId }, pageOptionsDto);
+      prisma.products.findMany.mockResolvedValue(mockProducts);
+      prisma.products.count.mockResolvedValue(itemCount);
+
+      const result = await service.findProducts(
+        { categoryId },
+        {},
+        pageOptionsDto,
+      );
 
       expect(prisma.products.findMany).toHaveBeenCalledWith({
-        select: expect.any(Object),
+        select: {
+          id: true,
+          title: true,
+          description: true,
+          categoryId: true,
+          productImages: { select: { url: true } },
+          price: true,
+        },
         where: { category: { id: categoryId } },
         skip: 0,
         take: 10,
         orderBy: { title: 'asc' },
       });
+      expect(prisma.products.count).toHaveBeenCalledWith({
+        where: { category: { id: categoryId } },
+      });
+      expect(result).toBeInstanceOf(PageDto);
       expect(result.data).toEqual(mockProducts);
-      expect(result.meta.itemCount).toBe(1);
+      expect(result.meta).toEqual(
+        new PageMetaDto({ pageOptionsDto, itemCount }),
+      );
+      expect(result.meta.itemCount).toBe(itemCount);
     });
 
     it('should return paginated products by title search', async () => {
@@ -343,22 +370,35 @@ describe('ProductService', () => {
           id: 'prod1',
           title: 'Test Product 1',
           price: '100',
+          categoryId: 'cat123',
           productImages: [{ url: 'http://image1.url' }],
+          description: 'Description 1',
         },
         {
           id: 'prod2',
           title: 'Test Product 2',
           price: '200',
+          categoryId: 'cat123',
           productImages: [{ url: 'http://image2.url' }],
+          description: 'Description 2',
         },
       ];
-      prisma.products.findMany.mockResolvedValue(mockProducts);
-      prisma.products.count.mockResolvedValue(2);
+      const itemCount = 2;
 
-      const result = await service.findProducts({ title }, pageOptionsDto);
+      prisma.products.findMany.mockResolvedValue(mockProducts);
+      prisma.products.count.mockResolvedValue(itemCount);
+
+      const result = await service.findProducts({ title }, {}, pageOptionsDto);
 
       expect(prisma.products.findMany).toHaveBeenCalledWith({
-        select: expect.any(Object),
+        select: {
+          id: true,
+          title: true,
+          description: true,
+          categoryId: true,
+          productImages: { select: { url: true } },
+          price: true,
+        },
         where: {
           title: { contains: title, mode: 'insensitive' },
         },
@@ -366,8 +406,223 @@ describe('ProductService', () => {
         take: 10,
         orderBy: { title: 'asc' },
       });
+      expect(prisma.products.count).toHaveBeenCalledWith({
+        where: { title: { contains: title, mode: 'insensitive' } },
+      });
+      expect(result).toBeInstanceOf(PageDto);
       expect(result.data).toEqual(mockProducts);
-      expect(result.meta.itemCount).toBe(2);
+      expect(result.meta).toEqual(
+        new PageMetaDto({ pageOptionsDto, itemCount }),
+      );
+      expect(result.meta.itemCount).toBe(itemCount);
+    });
+
+    it('should return paginated products by attributes', async () => {
+      const attributes = { color: ['red', 'blue'], size: ['M'] };
+      const pageOptionsDto = plainToInstance(PageOptionsDto, {
+        page: 1,
+        take: 5,
+        orderBy: 'price',
+        order: 'desc',
+      });
+      const mockProducts = [
+        {
+          id: 'prod1',
+          title: 'Product 1',
+          price: '150',
+          categoryId: 'cat123',
+          productImages: [{ url: 'http://image1.url' }],
+          description: 'Description 1',
+        },
+      ];
+      const itemCount = 1;
+
+      prisma.products.findMany.mockResolvedValue(mockProducts);
+      prisma.products.count.mockResolvedValue(itemCount);
+
+      const result = await service.findProducts({}, attributes, pageOptionsDto);
+
+      expect(prisma.products.findMany).toHaveBeenCalledWith({
+        select: {
+          id: true,
+          title: true,
+          description: true,
+          categoryId: true,
+          productImages: { select: { url: true } },
+          price: true,
+        },
+        where: {
+          AND: [
+            {
+              productAttributes: {
+                some: {
+                  attribute: { name: 'color' },
+                  optionValue: { value: { in: ['red', 'blue'] } },
+                },
+              },
+            },
+            {
+              productAttributes: {
+                some: {
+                  attribute: { name: 'size' },
+                  optionValue: { value: { in: ['M'] } },
+                },
+              },
+            },
+          ],
+        },
+        skip: 0,
+        take: 5,
+        orderBy: { price: 'desc' },
+      });
+      expect(prisma.products.count).toHaveBeenCalledWith({
+        where: {
+          AND: [
+            {
+              productAttributes: {
+                some: {
+                  attribute: { name: 'color' },
+                  optionValue: { value: { in: ['red', 'blue'] } },
+                },
+              },
+            },
+            {
+              productAttributes: {
+                some: {
+                  attribute: { name: 'size' },
+                  optionValue: { value: { in: ['M'] } },
+                },
+              },
+            },
+          ],
+        },
+      });
+      expect(result).toBeInstanceOf(PageDto);
+      expect(result.data).toEqual(mockProducts);
+      expect(result.meta).toEqual(
+        new PageMetaDto({ pageOptionsDto, itemCount }),
+      );
+      expect(result.meta.itemCount).toBe(itemCount);
+    });
+
+    it('should return paginated products by category, title, and attributes', async () => {
+      const categoryId = 'cat123';
+      const title = 'test product';
+      const attributes = { color: ['black'] };
+      const pageOptionsDto = plainToInstance(PageOptionsDto, {
+        page: 2,
+        take: 5,
+        orderBy: 'title',
+        order: 'asc',
+      });
+      const mockProducts = [
+        {
+          id: 'prod1',
+          title: 'Test Product 1',
+          price: '100',
+          categoryId: 'cat123',
+          productImages: [{ url: 'http://image1.url' }],
+          description: 'Description 1',
+        },
+      ];
+      const itemCount = 1;
+
+      prisma.products.findMany.mockResolvedValue(mockProducts);
+      prisma.products.count.mockResolvedValue(itemCount);
+
+      const result = await service.findProducts(
+        { categoryId, title },
+        attributes,
+        pageOptionsDto,
+      );
+
+      expect(prisma.products.findMany).toHaveBeenCalledWith({
+        select: {
+          id: true,
+          title: true,
+          description: true,
+          categoryId: true,
+          productImages: { select: { url: true } },
+          price: true,
+        },
+        where: {
+          category: { id: categoryId },
+          title: { contains: title, mode: 'insensitive' },
+          AND: [
+            {
+              productAttributes: {
+                some: {
+                  attribute: { name: 'color' },
+                  optionValue: { value: { in: ['black'] } },
+                },
+              },
+            },
+          ],
+        },
+        skip: 5, // (page - 1) * take = (2 - 1) * 5
+        take: 5,
+        orderBy: { title: 'asc' },
+      });
+      expect(prisma.products.count).toHaveBeenCalledWith({
+        where: {
+          category: { id: categoryId },
+          title: { contains: title, mode: 'insensitive' },
+          AND: [
+            {
+              productAttributes: {
+                some: {
+                  attribute: { name: 'color' },
+                  optionValue: { value: { in: ['black'] } },
+                },
+              },
+            },
+          ],
+        },
+      });
+      expect(result).toBeInstanceOf(PageDto);
+      expect(result.data).toEqual(mockProducts);
+      expect(result.meta).toEqual(
+        new PageMetaDto({ pageOptionsDto, itemCount }),
+      );
+      expect(result.meta.itemCount).toBe(itemCount);
+    });
+
+    it('should handle empty results', async () => {
+      const pageOptionsDto = plainToInstance(PageOptionsDto, {
+        page: 1,
+        take: 10,
+        orderBy: 'title',
+        order: 'asc',
+      });
+      const mockProducts: any[] = [];
+      const itemCount = 0;
+
+      prisma.products.findMany.mockResolvedValue(mockProducts);
+      prisma.products.count.mockResolvedValue(itemCount);
+
+      const result = await service.findProducts({}, {}, pageOptionsDto);
+      expect(prisma.products.findMany).toHaveBeenCalledWith({
+        select: {
+          id: true,
+          title: true,
+          description: true,
+          categoryId: true,
+          productImages: { select: { url: true } },
+          price: true,
+        },
+        where: {},
+        skip: 0,
+        take: 10,
+        orderBy: { title: 'asc' },
+      });
+
+      expect(prisma.products.count).toHaveBeenCalledWith({ where: {} });
+      expect(result).toBeInstanceOf(PageDto);
+      expect(result.data).toEqual(mockProducts);
+      expect(result.meta).toEqual(
+        new PageMetaDto({ pageOptionsDto, itemCount }),
+      );
+      expect(result.meta.itemCount).toBe(itemCount);
     });
   });
 

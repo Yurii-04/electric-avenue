@@ -20,6 +20,7 @@ import {
   ProductWithAttributes,
   ProductWithImages,
   ProductWithRelations,
+  FilterRequest,
 } from '~/product/types';
 import { MappedAttribute } from '~/product-attributes/types';
 import { ProductAttributesService } from '~/product-attributes/productAttributes.service';
@@ -208,13 +209,27 @@ export class ProductService {
 
   async findProducts(
     { categoryId, title }: Partial<Pick<Products, 'categoryId' | 'title'>>,
+    attributes: FilterRequest = {},
     pageOptionsDto: PageOptionsDto,
   ): Promise<PageDto<ProductWithImages>> {
     const { skip, take, orderBy, order } = pageOptionsDto;
 
+    const attributeFilters = Object.entries(attributes).map(
+      ([name, value]) => ({
+        productAttributes: {
+          some: {
+            attribute: { name },
+            optionValue: {
+              value: { in: value },
+            },
+          },
+        },
+      }),
+    );
     const where: Prisma.ProductsWhereInput = {
       ...(categoryId && { category: { id: categoryId } }),
       ...(title && { title: { contains: title, mode: 'insensitive' } }),
+      ...(attributeFilters.length > 0 && { AND: attributeFilters }),
     };
 
     const [data, itemCount] = await Promise.all([

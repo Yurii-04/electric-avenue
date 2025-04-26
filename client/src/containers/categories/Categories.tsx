@@ -33,7 +33,7 @@ const Categories: FC<CategoriesProps> = ({closeModal}) => {
     setSelectedCategory(category);
   }, []);
 
-  const getCategories = (categories: Category[], parentId: number | null): Category[] =>
+  const getCategories = (categories: Category[], parentId: string | null): Category[] =>
     categories.filter(category => category.parentId === parentId);
 
 

@@ -7,5 +7,3 @@ export type RelevantAttributes = {
   name: string;
   attributeOptions: string[];
 };
-
-export type FilterRequest = Record<string, string[]>;

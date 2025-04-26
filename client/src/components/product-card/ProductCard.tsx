@@ -14,7 +14,6 @@ type ProductCardProps = {
 const ProductCard: FC<ProductCardProps> = ({ product }) => {
   const handleCartClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
-    console.log(1);
   };
 
   return (

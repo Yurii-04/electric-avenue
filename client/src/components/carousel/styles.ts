@@ -5,6 +5,9 @@ export const styles = {
     borderRadius: '6px',
     p: '16px',
     m: '0 1.5vw 20px',
+    '& .swiper-pagination-bullet-active': {
+      backgroundColor: 'var(--milk-fog)'
+    }
   },
   title: {
     lineHeight: '28px',
