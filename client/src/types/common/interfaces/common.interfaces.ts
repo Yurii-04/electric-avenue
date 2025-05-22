@@ -5,8 +5,6 @@ export interface PaginationMeta {
   take: number;
   itemCount: number;
   pageCount: number;
-  hasPreviousPage: boolean;
-  hasNextPage: boolean;
 }
 
 export interface ApiResponse<T = unknown> {

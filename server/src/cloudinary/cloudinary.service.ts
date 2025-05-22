@@ -10,7 +10,14 @@ export class CloudinaryService {
   ): Promise<UploadApiResponse | UploadApiErrorResponse> {
     return new Promise((resolve, reject) => {
       const upload = v2.uploader.upload_stream(
-        { resource_type: 'image' },
+        {
+          resource_type: 'image',
+          transformation: {
+            width: 800,
+            height: 600,
+            // crop: 'cover',
+          },
+        },
         (error, result) => {
           if (error) return reject(new BadRequestException(error.message));
           resolve(result);

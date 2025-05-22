@@ -19,6 +19,7 @@ const ProductCard: FC<ProductCardProps> = ({ product }) => {
   return (
     <Box sx={styles.card} component={Link} to={`${URLs.product.get}/${product.id}`}>
       <Box
+        loading='lazy'
         sx={styles.image}
         src={product.productImages[0].url}
         component="img"

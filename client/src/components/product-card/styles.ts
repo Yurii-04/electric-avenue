@@ -19,11 +19,19 @@ export const styles = {
     width: '100%',
     height: { xs: '210px', sm: '300px' },
     objectFit: 'scale-down',
+    // objectFit: 'cover',
+    // objectPosition: 'center',
+    imageRendering: 'auto',
+
     backgroundColor: '#fff',
-    borderRadius: '6px 6px 0 0',
+    transition: '.5s',
+    '&:hover': {
+      transform: 'scale(1.01)',
+    }
   },
   title: {
     ...textClampStyle,
+    mt: 1.5,
     height: '39px',
   },
   descriptionWrapper: {

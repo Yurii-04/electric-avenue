@@ -14,14 +14,15 @@ interface ProductAttributesProps {
 }
 
 const ProductAttributes: FC<ProductAttributesProps> = ({ categoryId }) => {
-  console.log('rerender');
   const isTablet = useMediaQuery(theme.breakpoints.down('md'));
   const { response, loading } = useAxios<RelevantAttribute[], string[]>({
     service: useCallback(() => productService.getRelevantAttributes(categoryId), [categoryId]),
     defaultResponse: [],
   });
-  if (loading) return <AttributeFilterSkeleton sx={styles.paper} />;
 
+  if (loading) return <AttributeFilterSkeleton sx={styles.paper} />;
+  if(!response.length) return null;
+  
   if (isTablet) {
     return (
       <ProductFilterDrawer

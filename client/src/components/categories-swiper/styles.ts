@@ -13,7 +13,7 @@ export const styles = {
     borderRadius: 1,
     width: '100%',
     '& > .swiper': {
-      py: 1,
+      pb: 3,
     },
     '& .swiper-pagination': {
       bottom: '0'

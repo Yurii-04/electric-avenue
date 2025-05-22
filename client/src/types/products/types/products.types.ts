@@ -1,10 +1,11 @@
-import { ApiResponse, ProductMainFields } from '~/types';
+import { ApiResponse, PageOptions, ProductMainFields } from '~/types';
 
 export type SearchParams = { query?: string };
 export type FindProductsParams = {
   title?: string | null,
   category?: string | null,
   attributes?: SelectedAttributes | null,
+  pageOptions?: PageOptions | null,
 };
 export type ProductWithPagination = ApiResponse<ProductMainFields>
 export type SearchResult = ApiResponse<Pick<ProductMainFields, 'title'>>

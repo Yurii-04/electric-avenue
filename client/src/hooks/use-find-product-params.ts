@@ -1,9 +1,36 @@
 import { useSearchParams } from 'react-router-dom';
-import { useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { FindProductsParams, SelectedAttributes } from '~/types';
 
 export const useFindProductsParams = (): FindProductsParams => {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const prevParamsRef = useRef<string>('');
+
+  useEffect(() => {
+    const currentParamsObj: Record<string, string[]> = {};
+
+    for (const [key, value] of searchParams.entries()) {
+      if (!key.startsWith('page-options')) {
+        if (!currentParamsObj[key]) {
+          currentParamsObj[key] = [];
+        }
+        currentParamsObj[key].push(value);
+      }
+    }
+
+    const currentParamsStr = JSON.stringify(currentParamsObj);
+
+    if (prevParamsRef.current && prevParamsRef.current !== currentParamsStr) {
+      const pageParam = searchParams.get('page-options[page]');
+      if (pageParam && pageParam !== '1') {
+        const newParams = new URLSearchParams(searchParams);
+        newParams.set('page-options[page]', '1');
+        setSearchParams(newParams);
+      }
+    }
+
+    prevParamsRef.current = currentParamsStr;
+  }, [searchParams, setSearchParams]);
 
   return useMemo(() => {
     const category = searchParams.get('category');

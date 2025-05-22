@@ -17,7 +17,7 @@ import { CreateProductDto, UpdateProductDto } from '~/product/dto';
 import { GetCurrentUserId, Public } from '~/common/decorators';
 import { PageOptionsDto, PageOptionsWithoutSortingDto } from '~/common/dtos';
 import { FilesInterceptor } from '@nestjs/platform-express';
-import { FilesValidationPipe } from '~/common/pipes/files-validation.pipe';
+import { RequiredFilesPipe } from '~/common/pipes/files-validation.pipe';
 import { FilterRequest } from '~/product/types';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
@@ -30,13 +30,13 @@ export class ProductController {
   @HttpCode(HttpStatus.CREATED)
   @UseInterceptors(
     FilesInterceptor('files', 20, {
-      limits: { fileSize: MAX_FILE_SIZE }, // 5MB
+      limits: { fileSize: MAX_FILE_SIZE },
     }),
   )
   async create(
     @Body() dto: CreateProductDto,
     @GetCurrentUserId() userId: string,
-    @UploadedFiles(new FilesValidationPipe()) files: Express.Multer.File[],
+    @UploadedFiles(new RequiredFilesPipe()) files: Express.Multer.File[],
   ) {
     return this.productService.create(dto, userId, files);
   }

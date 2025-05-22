@@ -17,12 +17,16 @@ export const styles = {
       sm: 'repeat(auto-fit, minmax(220px, 1fr))',
     },
     gridTemplateRows: {
-      xs: 'repeat(auto-fill, 370px)',
-      sm: 'repeat(auto-fill, 470px)',
+      xs: 'repeat(auto-fill, 380px)',
+      sm: 'repeat(auto-fill, 480px)',
     },
     mb: 3,
   },
   notFoundTitle: {
     textAlign: 'center',
   },
+  paginationWrapper: {
+    display: 'flex',
+    justifyContent: 'center'
+  }
 };
