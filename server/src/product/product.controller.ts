@@ -51,8 +51,8 @@ export class ProductController {
   ) {
     return this.productService.findProducts(
       { categoryId, title },
-      attributes,
       pageOptionsDto,
+      attributes,
     );
   }
 

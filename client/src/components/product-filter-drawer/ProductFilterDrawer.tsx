@@ -13,26 +13,26 @@ interface ProductFilterDrawerProps {
 }
 
 export const ProductFilterDrawer: FC<ProductFilterDrawerProps> = ({ attributes, loading }) => {
-  const [isOpen, setOpen] = useState<boolean>(false);
+  const [isOpen, setIsOpen] = useState<boolean>(false);
   const [searchParams] = useSearchParams();
 
   useEffect(() => {
     const hasAttributes = Array.from(searchParams.keys()).some(key => key.startsWith('attributes['));
-    setOpen(prev => prev || hasAttributes);
+    setIsOpen(prev => prev ?? hasAttributes);
   }, [searchParams]);
 
   return (
     <>
       <Button
         sx={styles.filterBtn}
-        onClick={() => setOpen(true)}
+        onClick={() => setIsOpen(true)}
         variant="contained"
         size="medium"
         endIcon={<FilterAltIcon />}
       >
         Filters
       </Button>
-      <Drawer open={isOpen} onClose={() => setOpen(false)}>
+      <Drawer open={isOpen} onClose={() => setIsOpen(false)}>
         {loading ? <AttributeFilterSkeleton sx={{ width: 280, p: 2 }} /> : (
           attributes.map((attribute) => (
             <AttributeFilterAccordion

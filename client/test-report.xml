@@ -1,5 +1,5 @@
 <testExecutions version="1">
   <file path="src\tests\unit\test.spec.ts">
-    <testCase name="My Test Suite - should pass this sample test" duration="1" />
+    <testCase name="My Test Suite - should pass this sample test" duration="2" />
   </file>
 </testExecutions>

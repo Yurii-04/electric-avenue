@@ -24,7 +24,7 @@ const AttributeFilterAccordion: FC<AttributeFilterAccordionProps> = ({ attribute
     if (checked) {
       searchParams.append(`attributes[${attributeName}][]`, optionValue);
     } else {
-      const currentParams = searchParams.getAll(`attributes[${attributeName}][]`) || [];
+      const currentParams = searchParams.getAll(`attributes[${attributeName}][]`) ?? [];
       searchParams.delete(`attributes[${attributeName}][]`);
       currentParams.forEach(param => {
         if (param !== optionValue) {

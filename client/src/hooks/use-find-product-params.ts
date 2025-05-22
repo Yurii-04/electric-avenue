@@ -41,7 +41,7 @@ export const useFindProductsParams = (): FindProductsParams => {
       if (key.startsWith('attributes')) {
         const attributeMatch = key.match(/attributes\[(.*?)]/);
 
-        if (attributeMatch && attributeMatch[1]) {
+        if (attributeMatch?.[1]) {
           const attributeName = attributeMatch[1];
 
           if (!attributes[attributeName]) {

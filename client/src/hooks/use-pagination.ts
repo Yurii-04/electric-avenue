@@ -30,7 +30,7 @@ export const usePagination = (options: UsePaginationOptions = {}) => {
     ? Number(searchParams.get('page-options[page]'))
     : defaultPage;
 
-  const currentOrderBy = searchParams.get('page-options[orderBy]') || defaultOrderBy;
+  const currentOrderBy = searchParams.get('page-options[orderBy]') ?? defaultOrderBy;
   const currentOrder = (searchParams.get('page-options[order]') as Order) || defaultOrder;
 
   const getPaginationParams = useCallback((): PaginationParams => ({

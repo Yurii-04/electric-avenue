@@ -209,8 +209,8 @@ export class ProductService {
 
   async findProducts(
     { categoryId, title }: Partial<Pick<Products, 'categoryId' | 'title'>>,
-    attributes: FilterRequest = {},
     pageOptionsDto: PageOptionsDto,
+    attributes: FilterRequest = {},
   ): Promise<PageDto<ProductWithImages>> {
     const { skip, take, orderBy, order } = pageOptionsDto;
 

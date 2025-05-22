@@ -328,8 +328,8 @@ describe('ProductService', () => {
 
       const result = await service.findProducts(
         { categoryId },
-        {},
         pageOptionsDto,
+        {},
       );
 
       expect(prisma.products.findMany).toHaveBeenCalledWith({
@@ -388,7 +388,7 @@ describe('ProductService', () => {
       prisma.products.findMany.mockResolvedValue(mockProducts);
       prisma.products.count.mockResolvedValue(itemCount);
 
-      const result = await service.findProducts({ title }, {}, pageOptionsDto);
+      const result = await service.findProducts({ title }, pageOptionsDto, {});
 
       expect(prisma.products.findMany).toHaveBeenCalledWith({
         select: {
@@ -440,7 +440,7 @@ describe('ProductService', () => {
       prisma.products.findMany.mockResolvedValue(mockProducts);
       prisma.products.count.mockResolvedValue(itemCount);
 
-      const result = await service.findProducts({}, attributes, pageOptionsDto);
+      const result = await service.findProducts({}, pageOptionsDto, attributes);
 
       expect(prisma.products.findMany).toHaveBeenCalledWith({
         select: {
@@ -532,8 +532,8 @@ describe('ProductService', () => {
 
       const result = await service.findProducts(
         { categoryId, title },
-        attributes,
         pageOptionsDto,
+        attributes,
       );
 
       expect(prisma.products.findMany).toHaveBeenCalledWith({
@@ -600,7 +600,7 @@ describe('ProductService', () => {
       prisma.products.findMany.mockResolvedValue(mockProducts);
       prisma.products.count.mockResolvedValue(itemCount);
 
-      const result = await service.findProducts({}, {}, pageOptionsDto);
+      const result = await service.findProducts({}, pageOptionsDto, {});
       expect(prisma.products.findMany).toHaveBeenCalledWith({
         select: {
           id: true,
